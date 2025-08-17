@@ -1,4 +1,4 @@
-package io.github._Ladder.backend;
+package io.github.ladder.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package io.github._Ladder.backend;
+package io.github.ladder.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
