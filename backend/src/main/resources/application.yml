@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: bithave-backend  # Name
+
+  jpa:
+    open-in-view: false    # no lazy loading
+
+  sql:
+    init:
+      mode: never          # later firefly
+
+logging:
+  level:
+    root: INFO
