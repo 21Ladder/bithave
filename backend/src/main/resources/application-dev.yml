@@ -18,3 +18,10 @@ logging:
     org.springframework.jdbc.core: INFO
     org.hibernate.SQL: DEBUG                 # zeigt SQL-Statements
     org.hibernate.orm.jdbc.bind: TRACE       # zeigt SQL-Parameter
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true

@@ -1,17 +1,13 @@
 package io.github.ladder.backend.listings.service;
 
-import io.github.ladder.backend.listings.dto.ListingCreateRequest;
-import io.github.ladder.backend.listings.dto.ListingUpdateRequest;
+import io.github.ladder.backend.listings.dto.*;
+
+import java.util.UUID;
 
 public interface ListingService {
-
-    void list();
-
-    void getById(long id);
-
-    void create(ListingCreateRequest req);
-
-    void update(ListingUpdateRequest req);
-
-    void archive(long id);
+    PageResponse<ListingSummary> list(ListingQuery q);
+    ListingResponse getById(UUID id);
+    UUID create(ListingCreateRequest req);
+    ListingResponse update(UUID id, ListingUpdateRequest req);
+    void archive(UUID id);
 }
