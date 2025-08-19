@@ -10,136 +10,66 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "listings")
+@Table(name = "listings") // Tabellenname festlegen (stabil für später)
 public class ListingEntity {
 
     @Id
     @GeneratedValue
-    @UuidGenerator
+    @UuidGenerator                 // UUID wird in der App generiert
     private UUID id;
 
-    @Column
+    @Column(nullable = false, length = 120)
     private String title;
 
-    @Column
-    private Long priceSats;
+    @Column(name = "price_sats", nullable = false)
+    private long priceSats;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ListingStatus status;
 
-    @Column(name = "seller_id", nullable = false)
-    private UUID sellerId;
-
-    @Column(length = 64)
-    private String category;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    @Column(name = "seller_id", nullable = false)
+    private UUID sellerId;
 
-    @Column(name = "archived_at")
-    private Instant archivedAt;
-
+    // Bilder als eigene Tabelle 'listing_images'
     @ElementCollection
-    @CollectionTable(name = "listing_images", joinColumns = @JoinColumn(name = "listing_id"))
-    @OrderColumn(name = "position")
+    @CollectionTable(
+            name = "listing_images",
+            joinColumns = @JoinColumn(name = "listing_id")
+    )
+    @OrderColumn(name = "position") // 0,1,2… → stabile Reihenfolge
     @Column(name = "url", nullable = false, columnDefinition = "text")
     private List<String> images = new ArrayList<>();
 
+    // --- Lifecycle-Hooks: Timestamps/Defaults setzen ---
     @PrePersist
     void prePersist() {
-        Instant now = Instant.now();
-        if (createdAt == null) createdAt = now;
-        if (updatedAt == null) updatedAt = now;
+        if (createdAt == null) createdAt = Instant.now();
         if (status == null) status = ListingStatus.ACTIVE;
     }
-    @PreUpdate
-    void preUpdate() { updatedAt = Instant.now(); }
 
-    public UUID getId() {
-        return id;
-    }
+    protected ListingEntity() {} // JPA no-args ctor
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    // --- Getter/Setter (für JPA & Mapper) ---
+    public UUID getId() { return id; }
 
-    public String getTitle() {
-        return title;
-    }
+    public UUID getSellerId() { return sellerId; }
+    public void setSellerId(UUID sellerId) { this.sellerId = sellerId; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public Long getPriceSats() {
-        return priceSats;
-    }
+    public long getPriceSats() { return priceSats; }
+    public void setPriceSats(long priceSats) { this.priceSats = priceSats; }
 
-    public void setPriceSats(Long priceSats) {
-        this.priceSats = priceSats;
-    }
+    public ListingStatus getStatus() { return status; }
+    public void setStatus(ListingStatus status) { this.status = status; }
 
-    public ListingStatus getStatus() {
-        return status;
-    }
+    public Instant getCreatedAt() { return createdAt; }
 
-    public void setStatus(ListingStatus status) {
-        this.status = status;
-    }
-
-    public UUID getSellerId() {
-        return sellerId;
-    }
-
-    public void setSellerId(UUID sellerId) {
-        this.sellerId = sellerId;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Instant getArchivedAt() {
-        return archivedAt;
-    }
-
-    public void setArchivedAt(Instant archivedAt) {
-        this.archivedAt = archivedAt;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
-    protected ListingEntity() {
-
-    }
+    public List<String> getImages() { return images; }
+    public void setImages(List<String> images) { this.images = images; }
 }

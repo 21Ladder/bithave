@@ -1,4 +1,16 @@
 package io.github.ladder.backend.listings.dto;
 
-public class ListingResponse {
-}
+import io.github.ladder.backend.listings.domain.ListingStatus;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+public record ListingResponse(
+        UUID id,
+        String title,
+        long priceSats,
+        ListingStatus status,
+        List<String> images,
+        Instant createdAt
+) {}
