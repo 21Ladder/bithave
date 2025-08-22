@@ -3,11 +3,11 @@ package io.github.ladder.backend.listings.persistence;
 import io.github.ladder.backend.listings.domain.ListingStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.UuidGenerator;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
 
 @Entity
 @Table(name = "listings") // Tabellenname festlegen (stabil für später)
@@ -31,6 +31,9 @@ public class ListingEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     @Column(name = "seller_id", nullable = false)
     private UUID sellerId;
 
@@ -49,9 +52,24 @@ public class ListingEntity {
     void prePersist() {
         if (createdAt == null) createdAt = Instant.now();
         if (status == null) status = ListingStatus.ACTIVE;
+        if (updatedAt == null) updatedAt = createdAt;
     }
 
-    protected ListingEntity() {} // JPA no-args ctor
+    @PreUpdate
+    void preUpdate() {
+        updatedAt = Instant.now(); // bei Updates automatisch setzen
+    }
+
+    protected ListingEntity() {}
+
+    public ListingEntity(String title, long priceSats, List<String> images, UUID sellerId) {
+        this.title = title;
+        this.priceSats = priceSats;
+        this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
+        this.sellerId = sellerId;
+        this.status = ListingStatus.ACTIVE;
+        this.createdAt = Instant.now();
+    }
 
     // --- Getter/Setter (für JPA & Mapper) ---
     public UUID getId() { return id; }
@@ -69,6 +87,9 @@ public class ListingEntity {
     public void setStatus(ListingStatus status) { this.status = status; }
 
     public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+
+    public Instant getUpdatedAt() { return updatedAt; }
 
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }

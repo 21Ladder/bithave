@@ -1,12 +1,12 @@
 package io.github.ladder.backend.listings.api;
 
-import io.github.ladder.backend.listings.dto.ListingQuery;
-import io.github.ladder.backend.listings.dto.ListingResponse;
-import io.github.ladder.backend.listings.dto.ListingSummary;
-import io.github.ladder.backend.listings.dto.PageResponse;
+import io.github.ladder.backend.listings.dto.*;
 import io.github.ladder.backend.listings.service.ListingService;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -61,9 +61,16 @@ public class ListingsController {
         return listingService.list(query);
     }
 
-    @GetMapping("listings/{id}")
-    public ListingResponse get(@PathVariable UUID id) {
+    @GetMapping("/listings/{id}")
+    public ListingResponse getOneListing(@PathVariable UUID id) {
         return listingService.getById(id);
+    }
+
+    @PostMapping("/listings")
+    public ResponseEntity<ListingResponse> createOneListing(@RequestBody @Valid ListingCreateRequest req) {
+        UUID id = listingService.create(req);
+        URI location = URI.create("/api/v1/listings/" + id);
+        return ResponseEntity.created(location).body(listingService.getById(id));
     }
 
 }

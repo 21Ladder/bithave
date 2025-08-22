@@ -1,11 +1,14 @@
 package io.github.ladder.backend.listings.dto;
 
-import java.awt.image.BufferedImage;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import java.util.List;
+import java.util.UUID;
 
 public class ListingCreateRequest {
-    private String title;
-    private String description;
-    private Integer priceSats;
-    private BufferedImage[] images;
-    private String category;
+    @NotBlank public String title;
+    @NotNull @PositiveOrZero public Long priceSats;
+    public List<String> images;
+    @NotNull public UUID sellerId;
 }
