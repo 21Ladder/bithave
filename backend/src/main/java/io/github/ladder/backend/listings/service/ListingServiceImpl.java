@@ -5,13 +5,17 @@ import io.github.ladder.backend.listings.dto.*;
 import io.github.ladder.backend.listings.mapper.ListingMapper;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
 import io.github.ladder.backend.listings.persistence.ListingRepository;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,7 +40,7 @@ public class ListingServiceImpl implements ListingService {
         final int page = Math.max(0, q.page());
         final int size = q.size() > 0 ? Math.min(q.size(), 100) : 20;
 
-        // 2) Sort (case-insensitive + trim + Whitelist)
+        // 2) Sort (case-insensitive + trim + Whitelist) Fehlerhandling im Falle
         final String requestedSort = q.sort() == null ? "" : q.sort().trim();
         final String sortField = switch (requestedSort) {
             case "priceSats", "pricesats", "PRICESATS" -> "priceSats";
@@ -45,6 +49,8 @@ public class ListingServiceImpl implements ListingService {
         };
 
         final String order = q.order() == null ? "" : q.order().trim().toUpperCase(Locale.ROOT);
+
+        // Sort.Direction type wird von String Data direkt interpretiert, in welcher Richtung die Daten sortiert werden sollen
         final Sort.Direction dir = "ASC".equals(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
         final Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sortField));
 
@@ -56,12 +62,13 @@ public class ListingServiceImpl implements ListingService {
                 ListingStatus status = ListingStatus.valueOf(statusStr.toUpperCase(Locale.ROOT));
                 pageData = repo.findByStatus(status, pageable);
             } catch (IllegalArgumentException ex) {
-                // wirft eine klare 400 (sofern Controller IllegalArgumentException → 400 mapped)
+                // wirft einen 400 (wenn Controller IllegalArgumentException → 400 mapped)
                 throw new IllegalArgumentException(
                         "Unsupported status: " + statusStr + " (use ACTIVE|SOLD|ARCHIVED)"
                 );
             }
         } else {
+            //findAll existiert automatisch weil ListingRepository JPARepository extended
             pageData = repo.findAll(pageable);
         }
 
@@ -81,10 +88,17 @@ public class ListingServiceImpl implements ListingService {
         );
     }
 
-
+    @Transactional(readOnly = true)
     @Override
     public ListingResponse getById(UUID id) {
-        throw new UnsupportedOperationException("not implemented yet");
+
+        ListingEntity listingFound = repo.findById(id).orElse(null);
+
+        if (listingFound == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id" + id + " not found");
+        }else {
+            return mapper.toOneResponse(listingFound);
+        }
     }
 
     @Override
