@@ -1,13 +1,11 @@
 package io.github.ladder.backend.listings.api;
 
 import io.github.ladder.backend.listings.dto.ListingQuery;
+import io.github.ladder.backend.listings.dto.ListingResponse;
 import io.github.ladder.backend.listings.dto.ListingSummary;
 import io.github.ladder.backend.listings.dto.PageResponse;
 import io.github.ladder.backend.listings.service.ListingService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -40,6 +38,8 @@ public class ListingsController {
             @RequestParam(name = "maxPriceSats", required = false) Long maxPriceSats,
             @RequestParam(name = "sellerId", required = false) UUID sellerId
     ) {
+
+        //nachfolgend Reinigung der Requestparameter bist Zeile 56
         int safePage = Math.max(0, page);
         int safeSize = Math.min(Math.max(size, 1), 100);
 
@@ -59,6 +59,11 @@ public class ListingsController {
                 safeMin, safeMax, sellerId
         );
         return listingService.list(query);
+    }
+
+    @GetMapping("listings/{id}")
+    public ListingResponse get(@PathVariable UUID id) {
+        return listingService.getById(id);
     }
 
 }

@@ -12,5 +12,7 @@ public record ListingResponse(
         long priceSats,
         ListingStatus status,
         List<String> images,
-        Instant createdAt
+        UUID sellerId,
+        Instant createdAt,
+        Instant updatedAt
 ) {}
