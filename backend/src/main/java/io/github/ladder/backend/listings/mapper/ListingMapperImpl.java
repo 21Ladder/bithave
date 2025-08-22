@@ -1,16 +1,22 @@
 package io.github.ladder.backend.listings.mapper;
 
+import io.github.ladder.backend.listings.domain.ListingStatus;
 import io.github.ladder.backend.listings.dto.ListingCreateRequest;
 import io.github.ladder.backend.listings.dto.ListingResponse;
 import io.github.ladder.backend.listings.dto.ListingSummary;
 import io.github.ladder.backend.listings.dto.ListingUpdateRequest;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
+import io.github.ladder.backend.listings.persistence.ListingRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class ListingMapperImpl implements ListingMapper {
+
+    public ListingMapperImpl(ListingRepository listingRepository) {
+    }
 
     @Override
     public ListingSummary toSummary(ListingEntity e) {
@@ -34,8 +40,22 @@ public class ListingMapperImpl implements ListingMapper {
     }
 
     @Override
-    public ListingEntity toEntity(ListingCreateRequest req) {
-        throw new UnsupportedOperationException("ListingMapper.toEntity not implemented yet");
+    public ListingEntity requestToEntity(ListingCreateRequest req) {
+
+        List<String> allImages = new ArrayList<>();
+
+        if (req.images != null) {
+            allImages.addAll(req.images);
+        }
+
+        ListingEntity newListingEntity = new ListingEntity(
+                req.title,
+                req.priceSats,
+                allImages,
+                req.sellerId
+        );
+
+        return newListingEntity;
     }
 
     @Override
@@ -62,7 +82,7 @@ public class ListingMapperImpl implements ListingMapper {
                 safeImages,
                 entity.getSellerId(),
                 entity.getCreatedAt(),
-                entity.getCreatedAt()
+                entity.getUpdatedAt()
         );
     }
 }

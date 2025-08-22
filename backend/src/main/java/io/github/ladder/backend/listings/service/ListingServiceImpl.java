@@ -101,9 +101,12 @@ public class ListingServiceImpl implements ListingService {
         }
     }
 
+    @Transactional()
     @Override
     public UUID create(ListingCreateRequest req) {
-        throw new UnsupportedOperationException("not implemented yet");
+        ListingEntity entity = mapper.requestToEntity(req);
+        repo.save(entity);
+        return entity.getId();
     }
 
     @Override

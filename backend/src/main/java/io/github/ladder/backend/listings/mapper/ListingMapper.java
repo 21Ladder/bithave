@@ -12,7 +12,8 @@ public interface ListingMapper {
     ListingSummary toSummary(ListingEntity entity);
 
     // Für Create/Update/Detail
-    ListingEntity toEntity(ListingCreateRequest req);
+    ListingEntity requestToEntity(ListingCreateRequest req);
+
     void applyUpdate(ListingUpdateRequest req, ListingEntity target);
 
     //gibt mir nur 1 entity zurück, einen exakten Eintrag (Listing)
