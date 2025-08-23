@@ -1,6 +1,5 @@
 package io.github.ladder.backend.listings.mapper;
 
-import io.github.ladder.backend.listings.domain.ListingStatus;
 import io.github.ladder.backend.listings.dto.ListingCreateRequest;
 import io.github.ladder.backend.listings.dto.ListingResponse;
 import io.github.ladder.backend.listings.dto.ListingSummary;
@@ -60,7 +59,33 @@ public class ListingMapperImpl implements ListingMapper {
 
     @Override
     public void applyUpdate(ListingUpdateRequest req, ListingEntity target) {
-        throw new UnsupportedOperationException("ListingMapper.applyUpdate not implemented yet");
+
+        if (req.title != null) {
+            req.title.trim();
+            if (req.title.isEmpty()) {
+                throw new IllegalArgumentException("Title cannot be empty");
+            } else {
+                target.setTitle(req.title);
+            }
+        }
+
+        //System.out.println("DEBUG in the mapperimpl price before save: " + req.priceSats);
+        if (req.priceSats != null) {
+            if (req.priceSats < 0) {
+                throw new IllegalArgumentException("PriceSats cannot be negative");
+            }
+            target.setPriceSats(req.priceSats);
+        }
+
+        if (req.status != null) {
+            target.setStatus(req.status);
+        }
+
+        if (req.images != null && req.images.isEmpty()) {
+            target.setImages(new ArrayList<>(req.images));
+        }else{
+            target.setImages(req.images);
+        }
     }
 
     @Override
@@ -71,7 +96,7 @@ public class ListingMapperImpl implements ListingMapper {
         if (entity.getImages() != null && !entity.getImages().isEmpty()) {
             safeImages = entity.getImages();
         }else{
-            safeImages = null;
+            safeImages = new ArrayList<>();
         }
 
         return new ListingResponse(

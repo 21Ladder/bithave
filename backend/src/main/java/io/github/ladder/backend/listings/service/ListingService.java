@@ -1,7 +1,6 @@
 package io.github.ladder.backend.listings.service;
 
 import io.github.ladder.backend.listings.dto.*;
-
 import java.util.UUID;
 
 public interface ListingService {

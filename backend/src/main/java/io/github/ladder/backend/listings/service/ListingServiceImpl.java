@@ -1,21 +1,20 @@
 package io.github.ladder.backend.listings.service;
 
+import io.github.ladder.backend.listings.domain.Listing;
 import io.github.ladder.backend.listings.domain.ListingStatus;
 import io.github.ladder.backend.listings.dto.*;
 import io.github.ladder.backend.listings.mapper.ListingMapper;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
 import io.github.ladder.backend.listings.persistence.ListingRepository;
-import org.springframework.data.crossstore.ChangeSetPersister;
+
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -109,10 +108,57 @@ public class ListingServiceImpl implements ListingService {
         return entity.getId();
     }
 
+    @Transactional
     @Override
     public ListingResponse update(UUID id, ListingUpdateRequest req) {
-        throw new UnsupportedOperationException("not implemented yet");
+
+        //System.out.println("DEBUG incoming price: " + req.priceSats); // oder req.priceSats
+        //sucht listingentity in der datenbank
+        ListingEntity listingEntity = repo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity not found"));
+
+
+        ListingStatus currentStatus = listingEntity.getStatus();
+        ListingStatus requestStatus = req.status;
+
+        //prüft ob Statuswechsel möglich, wenn nicht wirft HTTPStatus conflict
+        if (requestStatus != null && requestStatus != currentStatus) {
+            assertStatusTransition(currentStatus, requestStatus);
+        }
+        //System.out.println("DEBUG price before apply: " + listingEntity.getPriceSats());
+        //applied update auf die gefundene ListingEntity
+        mapper.applyUpdate(req, listingEntity);
+
+        //System.out.println("DEBUG price before save: " + listingEntity.getPriceSats());
+        //speichert die Instanz entgültig ab
+        repo.save(listingEntity);
+
+        //System.out.println("DEBUG price after apply: " + listingEntity.getPriceSats());
+        //gibt die Daten der neuen Entität zurück
+        return mapper.toOneResponse(listingEntity);
     }
+
+    private static void assertStatusTransition(ListingStatus from, ListingStatus to) {
+        switch (from) {
+            case ACTIVE -> {
+                if (to != ListingStatus.SOLD && to != ListingStatus.ARCHIVED) {
+                    conflict(from, to);
+                }
+            }
+            case SOLD -> {
+                if (to != ListingStatus.ARCHIVED) {
+                    conflict(from, to);
+                }
+            }
+            case ARCHIVED -> conflict(from, to);
+        }
+    }
+
+    private static void conflict(ListingStatus from, ListingStatus to) {
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT, "Status transition not allowed: " + from + " → " + to
+        );
+    }
+
 
     @Override
     public void archive(UUID id) {
