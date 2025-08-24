@@ -1,0 +1,8 @@
+<h1>Listings Page</h1>
+
+<div>
+  <ul *ngIf="items$ | async as items">
+    <li *ngFor="let item of items">{{ item.title }} - {{ item.priceSats }}</li>
+  </ul>
+</div>
+
