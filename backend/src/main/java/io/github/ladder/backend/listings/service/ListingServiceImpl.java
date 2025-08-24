@@ -1,13 +1,14 @@
 package io.github.ladder.backend.listings.service;
 
-import io.github.ladder.backend.listings.domain.Listing;
 import io.github.ladder.backend.listings.domain.ListingStatus;
 import io.github.ladder.backend.listings.dto.*;
 import io.github.ladder.backend.listings.mapper.ListingMapper;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
 import io.github.ladder.backend.listings.persistence.ListingRepository;
 
+import io.github.ladder.backend.listings.persistence.ListingSpecs;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,11 +36,11 @@ public class ListingServiceImpl implements ListingService {
             throw new IllegalArgumentException("ListingQuery must not be null");
         }
 
-        // 1) Paging
+        // 1. Paging
         final int page = Math.max(0, q.page());
         final int size = q.size() > 0 ? Math.min(q.size(), 100) : 20;
 
-        // 2) Sort (case-insensitive + trim + Whitelist) Fehlerhandling im Falle
+        // 2. Sort (case-insensitive + trim + Whitelist) Fehlerhandling im Falle
         final String requestedSort = q.sort() == null ? "" : q.sort().trim();
         final String sortField = switch (requestedSort) {
             case "priceSats", "pricesats", "PRICESATS" -> "priceSats";
@@ -49,34 +50,40 @@ public class ListingServiceImpl implements ListingService {
 
         final String order = q.order() == null ? "" : q.order().trim().toUpperCase(Locale.ROOT);
 
-        // Sort.Direction type wird von String Data direkt interpretiert, in welcher Richtung die Daten sortiert werden sollen
+        // 3. Sort.Direction type wird von String Data direkt interpretiert, in welcher Richtung die Daten sortiert werden sollen
         final Sort.Direction dir = "ASC".equals(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
         final Pageable pageable = PageRequest.of(page, size, Sort.by(dir, sortField));
 
-        // 3) Optionaler Status (mit trim + freundlicher Fehler)
-        Page<ListingEntity> pageData;
+        // 4. Optionaler Status (mit trim + freundlicher Fehler)
+        ListingStatus parsedStatus = null;
         final String statusStr = q.status() == null ? "" : q.status().trim();
         if (!statusStr.isEmpty()) {
             try {
-                ListingStatus status = ListingStatus.valueOf(statusStr.toUpperCase(Locale.ROOT));
-                pageData = repo.findByStatus(status, pageable);
+                parsedStatus = ListingStatus.valueOf(statusStr.toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException ex) {
-                // wirft einen 400 (wenn Controller IllegalArgumentException → 400 mapped)
                 throw new IllegalArgumentException(
                         "Unsupported status: " + statusStr + " (use ACTIVE|SOLD|ARCHIVED)"
                 );
             }
-        } else {
-            //findAll existiert automatisch weil ListingRepository JPARepository extended
-            pageData = repo.findAll(pageable);
         }
 
-        // 4) Mapping
+        // 5. erstellt Specification für die WHERE Abfrage durch Spring JPA
+        Specification<ListingEntity> spec = null;
+        spec = and(spec, ListingSpecs.titleContains(q.q()));
+        spec = and(spec, ListingSpecs.statusEquals(parsedStatus));
+        spec = and(spec, ListingSpecs.priceMin(q.minPriceSats()));
+        spec = and(spec, ListingSpecs.priceMax(q.maxPriceSats()));
+        spec = and(spec, ListingSpecs.sellerIdEquals(q.sellerId()));
+
+        // 6. holt mir die Page an Entities mit den gewollten specs
+        Page<ListingEntity> pageData = repo.findAll(spec, pageable);
+
+        // 7. Mapping
         List<ListingSummary> items = pageData.getContent().stream()
                 .map(mapper::toSummary)
                 .toList();
 
-        // 5) Response
+        // 8. Pageresponse wird returned
         return new PageResponse<>(
                 items,
                 pageData.getNumber(),
@@ -85,6 +92,12 @@ public class ListingServiceImpl implements ListingService {
                 pageData.getTotalPages(),
                 pageData.hasNext()
         );
+    }
+
+    // helper für List Method um die Specs zu kombinieren
+    private static <T> Specification<T> and(Specification<T> base, Specification<T> add) {
+        if (add == null) return base;
+        return (base == null) ? add : base.and(add);
     }
 
     @Transactional(readOnly = true)
@@ -137,6 +150,7 @@ public class ListingServiceImpl implements ListingService {
         return mapper.toOneResponse(listingEntity);
     }
 
+    //method um Statuskonflikte zu erkennen deklarieren, aggieren als Guard bei ListingService.update
     private static void assertStatusTransition(ListingStatus from, ListingStatus to) {
         switch (from) {
             case ACTIVE -> {
