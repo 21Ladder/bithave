@@ -1,0 +1,21 @@
+# Environment files
+.env
+*.env
+
+# Node.js / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+
+# Java / Gradle
+backend/**/.gradle/
+backend/**/build/
+backend/**/out/
+
+# Docker volumes / data
+infra/docker/**/data/
+
+# OS / IDE
+.DS_Store
+.idea/
+*.iml

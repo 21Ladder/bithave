@@ -2,7 +2,7 @@ export interface ListingSummary{
   id: string;
   title: string;
   priceSats: number;
-  status: 'ACTIVE'|'SOLD'|'ARCHIVED'
+  status: 'ACTIVE'|'SOLD'|'ARCHIVED';
   thumbnailUrl: string|null;
   createdAt: string;
 }
@@ -12,4 +12,13 @@ export interface PageResponse<T> {
   page: number; size: number;
   totalElements: number; totalPages: number;
   hasNext: boolean;
+}
+
+export interface ListParams {
+  q?: string;
+  status?: string;
+  sort?: string;
+  order?: string;
+  page?: number;
+  size?: number;
 }

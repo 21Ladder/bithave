@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ListingsPageComponent } from './listings/listings-page/listings-page.component';
+import { ListingsPageComponent } from './listings/listings-page.component';
 
 export const routes: Routes = [
   { path: 'listings', component: ListingsPageComponent },
