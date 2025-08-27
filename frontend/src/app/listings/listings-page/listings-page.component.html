@@ -17,7 +17,7 @@
   <!-- Listings display holds full response for page interaction-->
   <div *ngIf="listingResponse$ | async as response">
     <ul>
-      <li *ngFor="let item of response.items">{{ item.title }} - {{ item.priceSats }} Sats - {{ item.createdAt}}</li>
+      <li *ngFor="let item of response.items" (click)="navigateToListingDetail(item.id)">{{ item.title }} - {{ item.priceSats }} Sats - {{ item.createdAt}}</li>
     </ul>
     <button (click)="page = 0; reload()">First Page</button>
     <button (click)="page = page - 1; previous()" [disabled]="page === 0">Previous</button>
