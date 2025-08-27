@@ -5,13 +5,14 @@ import { map, Observable } from 'rxjs';
 import { ListingSummary, PageResponse } from './api/models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 @Component({
   selector: 'app-listings-page',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './listings-page.component.html',
-  styleUrl: './listings-page.component.scss'
+  styleUrls: ['./listings-page.component.scss']
 })
 export class ListingsPageComponent implements OnInit {
 
@@ -23,22 +24,49 @@ export class ListingsPageComponent implements OnInit {
   size: number = 10;
 
   private readonly api = inject(ListingsApi);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute)
   listingResponse$!: Observable<PageResponse<ListingSummary>>;
 
   //loads the initial list of all the listings
   ngOnInit() {
-      this.listingResponse$ = this.api.list();
+    
+    //read all the query params from the route
+    const params = this.route.snapshot.queryParamMap;
+    params.get('q') ? this.q = params.get('q')! : null;
+    // gets sort value if possible, should be createdAt or priceSats, null is possible
+    params.get('sort') ? this.sort = params.get('sort') as 'createdAt' | 'priceSats' : null;
+    params.get('order') ? this.order = params.get('order') as 'ASC' | 'DESC' : null;
+    params.get('page') ? this.page = Number(params.get('page')) ?? 0 : null;
+    params.get('size') ? this.size = Number(params.get('size')) ?? 10 : null;
+    this.reload();
   }
 
   //search for the listings based on the user input
   searchOrSort(){
-    this.page = 0;
-    this.reload();
+    //true because we reset the pagenumber to 0 if search or sort was choosen
+    this.reload(true);
   }
 
-  //reloads if state changed
-  reload(){
-    this.listingResponse$ = this.api.list(this.q, this.sort, this.order, this.page, this.size);
+  //reloads if the state changed
+  reload(resetPage = false){
+    if (resetPage) {
+      this.page = 0;
+    }
+
+    //creating the query params object without the search field, merge handles it the following (if null, q is not set)
+    const queryParams: any = {sort: this.sort, order: this.order, page: this.page, size: this.size}
+    const trimmedQ = this.q.trim();
+    queryParams.q = trimmedQ || null;
+
+    //merges the query params and replaces the url
+    this.router.navigate([], {
+      relativeTo: this.route, 
+      queryParams: queryParams, 
+      queryParamsHandling: 'merge', 
+      replaceUrl: true
+    });
+    this.listingResponse$ = this.api.list(trimmedQ, this.sort, this.order, this.page, this.size);
   }
 
   toggleOrder() {
@@ -48,8 +76,8 @@ export class ListingsPageComponent implements OnInit {
 
   next(){
     this.page = this.page++;
-    window.scrollTo({top: 0});
     this.reload();
+    window.scrollTo({top: 0});
   }
 
   previous(){

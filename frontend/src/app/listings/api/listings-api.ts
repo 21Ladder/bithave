@@ -28,7 +28,6 @@ export class ListingsApi {
     }
     if (q && q.trim()){
       params.q = q.trim();
-      params.page = 0;
     }
     return this.http.get<PageResponse<ListingSummary>>('/api/v1/listings', {params});
   }
