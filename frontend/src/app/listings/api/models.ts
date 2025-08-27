@@ -22,3 +22,14 @@ export interface ListParams {
   page?: number;
   size?: number;
 }
+
+export interface ListingDetail{
+  id: string;
+  title: string;
+  priceSats: number;
+  status: 'ACTIVE'|'SOLD'|'ARCHIVED';
+  images: string[] | null;
+  sellerId: string;
+  createdAt: string;
+  updatedAt: string;
+}

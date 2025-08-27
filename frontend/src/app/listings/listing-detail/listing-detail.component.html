@@ -1,0 +1,22 @@
+<button (click)="goBack()">Back</button>
+
+<ng-container *ngIf="listingDetail$ | async as d; else loading">
+  <h1>{{ d.title }}</h1>
+
+  <div *ngIf="isImageLoading" class="loader"></div>
+  <img *ngIf="d.images && d.images.length > 0"
+     [ngSrc]="d.images[0]"
+     [alt]="d.title"
+     width="160" height="120"
+     priority
+     (load)="isImageLoading = false"
+     (error)="isImageLoading = false">
+
+<div *ngIf="!d.images || d.images.length === 0">Kein Bild vorhanden</div>
+
+  <h2>Price: {{ d.priceSats }} Sats</h2>
+  <p>{{ d.createdAt | date:'short' }}</p>
+  <p>{{ d.updatedAt | date:'short' }}</p>
+</ng-container>
+
+<ng-template #loading>lade…</ng-template>

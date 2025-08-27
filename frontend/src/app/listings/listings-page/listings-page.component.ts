@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { inject } from '@angular/core';
-import { ListingsApi } from './api/listings-api';
+import { ListingsApi } from '../api/listings-api';
 import { map, Observable } from 'rxjs';
-import { ListingSummary, PageResponse } from './api/models';
+import { ListingSummary, PageResponse } from '../api/models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -84,6 +84,10 @@ export class ListingsPageComponent implements OnInit {
     this.page = Math.max(0, this.page--);
     this.reload();
     window.scrollTo({top: 0});
+  }
+
+  navigateToListingDetail(id: string){
+    this.router.navigate(['/listings', id])
   }
 }
 
