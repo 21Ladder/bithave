@@ -1,0 +1,25 @@
+<button (click)="goBack()">Back</button>
+
+<ng-container [ngSwitch]="vm.kind">
+  <p *ngSwitchCase="'loading'">Loading…</p>
+  <div *ngSwitchCase="'error'">{{ vm.message }}</div>
+
+  <ng-container *ngSwitchCase="'loaded'">
+    <h1>{{ vm.data.title }}</h1>
+    <p>Price: {{ vm.data.priceSats }} Sats</p>
+
+    <div *ngIf="vm.data.images?.length; else noImages">
+        <img [src]="vm.data.images[0]"
+             [alt]="vm.data.title"
+             width="320"
+             height="200">
+    </div>
+    <ng-template #noImages>
+      <p>Keine Bilder vorhanden</p>
+    </ng-template>
+
+  </ng-container>
+</ng-container>
+
+
+<ng-template #loading>Loading…</ng-template>

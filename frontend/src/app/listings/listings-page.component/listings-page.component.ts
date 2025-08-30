@@ -89,6 +89,10 @@ export class ListingsPageComponent implements OnInit {
   navigateToListingDetail(id: string){
     this.router.navigate(['/listings', id])
   }
+
+  createListing() {
+    this.router.navigate(['/listings/new']);
+  }
 }
 
   

@@ -1,0 +1,17 @@
+
+<div>
+  <form (ngSubmit)="onSubmit()">
+  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+
+  <input name="title" [(ngModel)]="title" required maxlength="120" placeholder="Title">
+
+  <input name="priceSats" [(ngModel)]="priceSats" type="number" min="0" step="1" required placeholder="Price in Sats">
+
+  <textarea name="imagesText" [(ngModel)]="imagesText" placeholder="Image URLs, separated by line or comma"></textarea>
+
+  <button type="submit" [disabled]="loading">{{ loading ? 'Creating…' : 'Create Listing' }}</button>
+</form>
+
+  <button (click)="back()">Back</button>
+</div>
+

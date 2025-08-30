@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PageResponse } from './models';
-import { ListingSummary, ListingDetail } from './models';
+import { ListingSummary, ListingDetail, CreateListingRequest } from './models';
 
 @Injectable({providedIn: 'root'})
 export class ListingsApi {
@@ -36,5 +36,8 @@ export class ListingsApi {
   get(id:string): Observable<ListingDetail> {
     return this.http.get<ListingDetail>(`/api/v1/listings/${id}`);
   }
-}
 
+  createListing(newListing: CreateListingRequest): Observable<ListingDetail> {
+    return this.http.post<ListingDetail>('/api/v1/listings', newListing);
+  }
+}

@@ -1,6 +1,7 @@
 <h1>Listings Page</h1>
 
 <div>
+  <button (click)="createListing()" routerLink="/listings/new">+ Create new listing</button>
   <form (ngSubmit)="searchOrSort()">
     <input type="search" name="q" [(ngModel)]="q"/>
     <button type="submit">Search</button>

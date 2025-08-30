@@ -33,3 +33,10 @@ export interface ListingDetail{
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateListingRequest{
+  title: string;
+  priceSats: number;
+  images: string[] | null;
+  sellerId: string;
+}
