@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PageResponse } from './models';
-import { ListingSummary, ListingDetail, CreateListingRequest } from './models';
+import { ListingSummary, ListingDetail, CreateListingRequest, EditListingRequest } from './models';
 
 @Injectable({providedIn: 'root'})
 export class ListingsApi {
@@ -39,5 +39,9 @@ export class ListingsApi {
 
   createListing(newListing: CreateListingRequest): Observable<ListingDetail> {
     return this.http.post<ListingDetail>('/api/v1/listings', newListing);
+  }
+
+  editListing(uuid: string, editedListing: EditListingRequest): Observable<ListingDetail>{
+    return this.http.patch<ListingDetail>(`/api/v1/listings/${uuid}`, editedListing);
   }
 }

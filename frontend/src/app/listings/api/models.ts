@@ -40,3 +40,10 @@ export interface CreateListingRequest{
   images: string[] | null;
   sellerId: string;
 }
+
+export interface EditListingRequest{
+  title?: string;
+  priceSats?: number;
+  status?: string;
+  images?: string[];
+}

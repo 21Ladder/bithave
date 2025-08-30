@@ -1,0 +1,45 @@
+<button (click)="backToDetails()" [disabled]="saving">Back</button>
+<p>Edit Listing!</p>
+
+<div>
+  <form *ngIf="!loading" #f="ngForm" (ngSubmit)="onSave(f)">
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+    <!-- Title -->
+    <input
+      name="title"
+      [(ngModel)]="title"
+      required
+      maxlength="120"
+      placeholder="Titel" />
+
+    <!-- Price in Sats -->
+    <input
+      name="priceSats"
+      [(ngModel)]="priceSats"
+      type="number"
+      min="0"
+      step="1"
+      required
+      placeholder="Price (Sats)" />
+
+    <!-- Images -->
+    <textarea
+      name="imagesText"
+      [(ngModel)]="imagesText"
+      placeholder="Image URLs (each line or comma separated)"></textarea>
+
+    <!-- Only clickable if something was changed and the form is valid -->
+    <button type="submit" [disabled]="saving || loading || !f.dirty || !f.valid">
+      {{ saving ? 'Editing…' : 'Edit Listing' }}
+    </button>
+  </form>
+
+  <p *ngIf="loading">Lade…</p>
+
+  <div>
+    <button *ngIf="complete" (click)="backToDetails()">Go to the edited listing</button>
+    <h1 *ngIf="complete">Editing successful!</h1>
+  </div>
+
+</div>
