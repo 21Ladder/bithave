@@ -1,25 +1,32 @@
-<button (click)="goBack()">Back</button>
 
-<ng-container [ngSwitch]="vm.kind">
-  <p *ngSwitchCase="'loading'">Loading…</p>
-  <div *ngSwitchCase="'error'">{{ vm.message }}</div>
-
-  <ng-container *ngSwitchCase="'loaded'">
-    <h1>{{ vm.data.title }}</h1>
-    <p>Price: {{ vm.data.priceSats }} Sats</p>
-
-    <div *ngIf="vm.data.images?.length; else noImages">
-        <img [src]="vm.data.images[0]"
-             [alt]="vm.data.title"
-             width="320"
-             height="200">
+<div>
+  <button (click)="goBack()">Back</button>
+  
+  <!-- Loading -->
+  <p *ngIf="loading">Loading…</p>
+  
+  <!-- Error -->
+  <div *ngIf="!loading && errorMessage">
+    {{ errorMessage }}
+  </div>
+  
+  <!-- Loaded -->
+  <ng-container *ngIf="!loading && listing as d">
+    <h1>{{ d.title }}</h1>
+    <p>Price: {{ d.priceSats }} Sats</p>
+  
+    <div *ngIf="d.images?.length; else noImages">
+      <img
+        [src]="d.images?.[0]"
+        [alt]="d.title"
+        width="320"
+        height="200"
+      />
     </div>
     <ng-template #noImages>
       <p>Keine Bilder vorhanden</p>
     </ng-template>
-
   </ng-container>
-</ng-container>
 
-
-<ng-template #loading>Loading…</ng-template>
+  <button (click)="goToEdit()">Edit</button>
+</div>

@@ -6,11 +6,6 @@ import { ListingDetail } from '../api/models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-type Vm =
-  | { kind: 'loading' }
-  | { kind: 'loaded'; data: ListingDetail }
-  | { kind: 'error'; message: string };
-
 @Component({
   selector: 'app-listing-detail',
   imports: [CommonModule, FormsModule],
@@ -22,26 +17,35 @@ export class ListingDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  vm: Vm = { kind: 'loading' };
+  // simple state flags/values
+  loading = true;
+  errorMessage: string | null = null;
+  listing: ListingDetail | null = null;
+  id: string = '';
 
   ngOnInit() {
+    this.id = this.route.snapshot.paramMap.get('id') || '';
+    if (!this.id) {
+      this.errorMessage = 'No ID.';
+      this.loading = false;
+      return;
+    }
 
-    // Get the ID of the listing via route parameters
-    const id = this.route.snapshot.paramMap.get('id');
-    //if no ID is present show error
-    if (!id) { this.vm = { kind: 'error', message: 'No ID.' }; return; }
-
-    // Fetch the listing details, next means the successful response, error if 404 or others
-    this.api.get(id).subscribe({
-      next: data => this.vm = { kind: 'loaded', data },
+    this.api.get(this.id).subscribe({
+      next: data => {
+        this.listing = data;
+        this.loading = false;
+      },
       error: (err: HttpErrorResponse) => {
-        const msg = err.status === 404 ? 'Entry not found.'
-                  : err.status === 0   ? 'Network error – please check.'
-                                       : 'Error loading.';
-        this.vm = { kind: 'error', message: msg };
+        this.errorMessage =
+          err.status === 404 ? 'Entry not found.'
+          : err.status === 0   ? 'Network error – please check.'
+                               : 'Error loading.';
+        this.loading = false;
       }
     });
   }
 
-  goBack(){ this.router.navigate(['/listings']); }
+  goBack() { this.router.navigate(['/listings']); }
+  goToEdit() { this.router.navigate(['/listings', this.id, 'edit']); }
 }
