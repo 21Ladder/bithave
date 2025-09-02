@@ -9,6 +9,7 @@ public record ListingSummary(
         UUID id,
         String title,
         long priceSats,
+        String categoryPath,
         ListingStatus status,
         String thumbnailUrl,
         Instant createdAt

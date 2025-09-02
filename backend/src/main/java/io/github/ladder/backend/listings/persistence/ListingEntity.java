@@ -24,6 +24,9 @@ public class ListingEntity {
     @Column(name = "price_sats", nullable = false)
     private long priceSats;
 
+    @Column(name = "category_path", length=120)
+    private String categoryPath;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ListingStatus status;
@@ -82,6 +85,9 @@ public class ListingEntity {
 
     public long getPriceSats() { return priceSats; }
     public void setPriceSats(long priceSats) { this.priceSats = priceSats; }
+
+    public String getCategoryPath() { return categoryPath; }
+    public void setCategoryPath(String categoryPath) { this.categoryPath = categoryPath; }
 
     public ListingStatus getStatus() { return status; }
     public void setStatus(ListingStatus status) { this.status = status; }

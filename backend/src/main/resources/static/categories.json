@@ -1,0 +1,65 @@
+[
+  {
+    "code": "beauty-health",
+    "label": "Beauty / Health / Wellness",
+    "children": [
+      {
+        "code": "beauty-health/skin-care",
+        "label": "Skin Care",
+        "children": [
+          { "code": "beauty-health/skin-care/cleansers", "label": "Cleansers" },
+          { "code": "beauty-health/skin-care/moisturizers", "label": "Moisturizers" },
+          { "code": "beauty-health/skin-care/sunscreen", "label": "Sunscreen" }
+        ]
+      },
+      {
+        "code": "beauty-health/hair-care",
+        "label": "Hair Care",
+        "children": [
+          { "code": "beauty-health/hair-care/shampoo", "label": "Shampoo" },
+          { "code": "beauty-health/hair-care/conditioner", "label": "Conditioner" },
+          { "code": "beauty-health/hair-care/styling", "label": "Styling" }
+        ]
+      },
+      { "code": "beauty-health/makeup", "label": "Makeup" }
+    ]
+  },
+  {
+    "code": "electronics",
+    "label": "Electronics",
+    "children": [
+      {
+        "code": "electronics/phones",
+        "label": "Phones",
+        "children": [
+          { "code": "electronics/phones/smartphones", "label": "Smartphones" },
+          { "code": "electronics/phones/feature-phones", "label": "Feature Phones" }
+        ]
+      },
+      {
+        "code": "electronics/computers",
+        "label": "Computers",
+        "children": [
+          { "code": "electronics/computers/laptops", "label": "Laptops" },
+          { "code": "electronics/computers/desktops", "label": "Desktops" }
+        ]
+      },
+      { "code": "electronics/audio", "label": "Audio / Headphones" }
+    ]
+  },
+  {
+    "code": "home-garden",
+    "label": "Home / Garden / Workshop",
+    "children": [
+      { "code": "home-garden/furniture", "label": "Furniture" },
+      {
+        "code": "home-garden/tools",
+        "label": "Tools",
+        "children": [
+          { "code": "home-garden/tools/drills", "label": "Drills" },
+          { "code": "home-garden/tools/hand-tools", "label": "Hand Tools" }
+        ]
+      }
+    ]
+  }
+]

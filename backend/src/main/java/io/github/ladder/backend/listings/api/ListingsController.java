@@ -75,9 +75,7 @@ public class ListingsController {
 
     @PatchMapping("/listings/{id}")
     public ListingResponse updateOneListing(@PathVariable UUID id, @RequestBody @Valid ListingUpdateRequest req) {
-
         //ruft den ListingService update auf welcher durch den Mapper einen ListingsRepsonse retour bekommt
         return listingService.update(id, req);
     }
-
 }
