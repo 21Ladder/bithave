@@ -1,0 +1,4 @@
+.two { display: flex; gap: 12px; }
+.left { width: 260px; }   /* linke Box */
+.right { flex: 1; }       /* rechte Box füllt Rest */
+.box { border: 1px solid #ddd; padding: 10px; border-radius: 6px; }

@@ -51,5 +51,12 @@ public final class ListingSpecs {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("sellerId"), sellerId);
     }
 
-
+    public static Specification<ListingEntity> categoryPathStartingWithIgnoreCase(String categoryPath){
+        if (categoryPath == null || categoryPath.isBlank()) return null;
+        String prefix = categoryPath.trim().toLowerCase(Locale.ROOT) + "%";
+        return (root, query, cb) -> cb.like(
+                cb.lower(root.join("category").get("path")), // <-- wichtig: join + path
+                prefix
+        );
+    }
 }

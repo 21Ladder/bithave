@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PageResponse } from './models';
+import { CategoryItem, PageResponse } from './models';
 import { ListingSummary, ListingDetail, CreateListingRequest, EditListingRequest } from './models';
 
 @Injectable({providedIn: 'root'})
@@ -10,6 +10,7 @@ export class ListingsApi {
 
   list(
     q?: string,
+    category?: string,
     sort?: string,
     order?: string,
     page: number = 0,
@@ -30,6 +31,10 @@ export class ListingsApi {
     if (q && q.trim()){
       params.q = q.trim();
     }
+    if (category && category.trim()){
+      params.category = category.trim();
+    }
+
     return this.http.get<PageResponse<ListingSummary>>('/api/v1/listings', {params});
   };
 
@@ -44,4 +49,11 @@ export class ListingsApi {
   editListing(uuid: string, editedListing: EditListingRequest): Observable<ListingDetail>{
     return this.http.patch<ListingDetail>(`/api/v1/listings/${uuid}`, editedListing);
   }
+
+  getAllCategories(parent: string): Observable<CategoryItem[]> {
+    return this.http.get<CategoryItem[]>('/api/v1/categories', { params: { parent } });
+  }
+
+  
+
 }
