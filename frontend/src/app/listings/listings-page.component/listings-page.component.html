@@ -7,24 +7,36 @@
     <button type="submit">Search</button>
   </form>
 
-  <!-- Sorting options -->
-  <select [(ngModel)]="sort" (change)="searchOrSort()">
-    <option value="createdAt">Created At</option>
-    <option value="priceSats">Price (Sats)</option>
-  </select>
-  <!-- Order options -->
-  <button (click)="toggleOrder()">{{ order === 'DESC' ? 'Descending' : 'Ascending' }}</button>
+  <div class="two">
+    <!-- Category filter -->
+    <div *ngIf="categories$ | async as cats" class="left box">
+      <ul>
+        <p *ngIf="choosenCategorie$" (click)="listItemsOfCategory(choosenCategorie$)">{{ choosenCategorie$ }}</p>
+        <li *ngFor="let category of cats" (click)="listItemsOfCategory(category.name)">{{ category.name }}</li>
+      </ul>
+    </div>
 
-  <!-- Listings display holds full response for page interaction-->
-  <div *ngIf="listingResponse$ | async as response">
-    <ul>
-      <li *ngFor="let item of response.items" (click)="navigateToListingDetail(item.id)">{{ item.title }} - {{ item.priceSats }} Sats - {{ item.createdAt}}</li>
-    </ul>
-    <button (click)="page = 0; reload()">First Page</button>
-    <button (click)="page = page - 1; previous()" [disabled]="page === 0">Previous</button>
-    <span>Page {{page + 1}} of {{response.totalPages}}</span>
-    <button (click)="page = page + 1; next()" [disabled]="response.hasNext === false">Next</button>
-    <button (click)="page = response.totalPages - 1; reload()">Last Page</button>
+    <div class="right box">
+      <!-- Sorting options -->
+      <select [(ngModel)]="sort" (change)="searchOrSort()">
+        <option value="createdAt">Created At</option>
+        <option value="priceSats">Price (Sats)</option>
+      </select>
+      <!-- Order options -->
+      <button (click)="toggleOrder()">{{ order === 'DESC' ? 'Descending' : 'Ascending' }}</button>
+    
+      <!-- Listings display holds full response for page interaction-->
+      <div *ngIf="listingResponse$ | async as response">
+        <ul>
+          <li *ngFor="let item of response.items" (click)="navigateToListingDetail(item.id)">{{ item.title }} - {{ item.priceSats }} Sats - {{ item.createdAt}}</li>
+        </ul>
+        <button (click)="page = 0; reload()">First Page</button>
+        <button (click)="page = page - 1; previous()" [disabled]="page === 0">Previous</button>
+        <span>Page {{page + 1}} of {{response.totalPages}}</span>
+        <button (click)="page = page + 1; next()" [disabled]="response.hasNext === false">Next</button>
+        <button (click)="page = response.totalPages - 1; reload()">Last Page</button>
+      </div>
+    </div>
   </div>
 </div>
 

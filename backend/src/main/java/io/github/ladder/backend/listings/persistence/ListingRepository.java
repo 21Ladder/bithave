@@ -11,4 +11,8 @@ import java.util.UUID;
 public interface ListingRepository extends JpaRepository<ListingEntity, UUID>, JpaSpecificationExecutor<ListingEntity> {
 
     Page<ListingEntity> findByStatus(ListingStatus status, Pageable pageable);
+
+    Page<ListingEntity> findByCategory_PathStartingWithIgnoreCase(String categoryPath, Pageable pageable);
+
+    Page<ListingEntity> findByStatusAndCategory_PathStartingWithIgnoreCase(ListingStatus status, String categoryPath, Pageable pageable);
 }

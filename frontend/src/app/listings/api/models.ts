@@ -47,3 +47,9 @@ export interface EditListingRequest{
   status?: string;
   images?: string[];
 }
+
+export interface CategoryItem {
+  path: string;
+  name: string;
+  hasChildren: boolean;
+}

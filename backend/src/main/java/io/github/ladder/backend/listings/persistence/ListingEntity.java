@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 
 @Entity
 @Table(name = "listings") // Tabellenname festlegen (stabil für später)
@@ -24,8 +26,9 @@ public class ListingEntity {
     @Column(name = "price_sats", nullable = false)
     private long priceSats;
 
-    @Column(name = "category_path", length=120)
-    private String categoryPath;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryEntity category;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -65,9 +68,10 @@ public class ListingEntity {
 
     protected ListingEntity() {}
 
-    public ListingEntity(String title, long priceSats, List<String> images, UUID sellerId) {
+    public ListingEntity(String title, long priceSats, CategoryEntity category, List<String> images, UUID sellerId) {
         this.title = title;
         this.priceSats = priceSats;
+        this.category = category;
         this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
         this.sellerId = sellerId;
         this.status = ListingStatus.ACTIVE;
@@ -86,8 +90,11 @@ public class ListingEntity {
     public long getPriceSats() { return priceSats; }
     public void setPriceSats(long priceSats) { this.priceSats = priceSats; }
 
-    public String getCategoryPath() { return categoryPath; }
-    public void setCategoryPath(String categoryPath) { this.categoryPath = categoryPath; }
+    public String getCategoryPath() { return this.category.getPath(); }
+    public void setCategoryPath(CategoryEntity category) { this.category = category; }
+
+    public CategoryEntity getCategory() { return category; }
+    public void setCategory(CategoryEntity category) { this.category = category; }
 
     public ListingStatus getStatus() { return status; }
     public void setStatus(ListingStatus status) { this.status = status; }

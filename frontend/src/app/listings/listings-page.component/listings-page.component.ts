@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { inject } from '@angular/core';
 import { ListingsApi } from '../api/listings-api';
 import { map, Observable } from 'rxjs';
-import { ListingSummary, PageResponse } from '../api/models';
+import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
@@ -18,6 +18,8 @@ export class ListingsPageComponent implements OnInit {
 
   //user search/sort/order input states
   q: string = '';
+  category: string = '';
+  parent: string = '';
   sort: 'createdAt' | 'priceSats' = 'createdAt';
   order: 'ASC' | 'DESC' = 'ASC';
   page: number = 0;
@@ -26,7 +28,11 @@ export class ListingsPageComponent implements OnInit {
   private readonly api = inject(ListingsApi);
   private router = inject(Router);
   private route = inject(ActivatedRoute)
+
   listingResponse$!: Observable<PageResponse<ListingSummary>>;
+  categories$!: Observable<CategoryItem[]>;
+  subCategories$!: Observable<CategoryItem[]>;
+  choosenCategorie$!: string;
 
   //loads the initial list of all the listings
   ngOnInit() {
@@ -34,6 +40,8 @@ export class ListingsPageComponent implements OnInit {
     //read all the query params from the route
     const params = this.route.snapshot.queryParamMap;
     params.get('q') ? this.q = params.get('q')! : null;
+    params.get('category') ? this.category = params.get('category')! : null;
+    params.get('parent') ? this.category = params.get('parent')! : null;
     // gets sort value if possible, should be createdAt or priceSats, null is possible
     params.get('sort') ? this.sort = params.get('sort') as 'createdAt' | 'priceSats' : null;
     params.get('order') ? this.order = params.get('order') as 'ASC' | 'DESC' : null;
@@ -66,7 +74,12 @@ export class ListingsPageComponent implements OnInit {
       queryParamsHandling: 'merge', 
       replaceUrl: true
     });
-    this.listingResponse$ = this.api.list(trimmedQ, this.sort, this.order, this.page, this.size);
+    this.listingResponse$ = this.api.list(trimmedQ, this.category, this.sort, this.order, this.page, this.size);
+
+    if (this.category) {
+      this.choosenCategorie$ = this.category.toUpperCase();
+    }
+    this.categories$ = this.api.getAllCategories(this.parent);
   }
 
   toggleOrder() {
@@ -92,6 +105,12 @@ export class ListingsPageComponent implements OnInit {
 
   createListing() {
     this.router.navigate(['/listings/new']);
+  }
+
+  listItemsOfCategory(category: string) {
+    this.category = category;
+    this.parent = category;
+    this.reload();
   }
 }
 

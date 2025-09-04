@@ -67,6 +67,10 @@ public class ListingServiceImpl implements ListingService {
             }
         }
 
+        if (q.category() != null) {
+            String prefix = q.category().trim().toLowerCase() + "%";
+        }
+
         // 5. erstellt Specification für die WHERE Abfrage durch Spring JPA
         Specification<ListingEntity> spec = null;
         spec = and(spec, ListingSpecs.titleContains(q.q()));
@@ -74,6 +78,7 @@ public class ListingServiceImpl implements ListingService {
         spec = and(spec, ListingSpecs.priceMin(q.minPriceSats()));
         spec = and(spec, ListingSpecs.priceMax(q.maxPriceSats()));
         spec = and(spec, ListingSpecs.sellerIdEquals(q.sellerId()));
+        spec = and(spec, ListingSpecs.categoryPathStartingWithIgnoreCase(q.category()));
 
         // 6. holt mir die Page an Entities mit den gewollten specs
         Page<ListingEntity> pageData = repo.findAll(spec, pageable);

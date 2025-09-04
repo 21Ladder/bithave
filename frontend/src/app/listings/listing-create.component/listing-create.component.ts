@@ -15,6 +15,7 @@ import { CreateListingRequest } from '../api/models';
 export class ListingCreateComponent {
   title = '';
   priceSats: number = 0;
+  category: string = '';
   images: string[] = [];
   imagesText = '';
   sellerID = '11111111-1111-1111-1111-111111111111';

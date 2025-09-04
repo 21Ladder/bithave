@@ -4,6 +4,8 @@ import io.github.ladder.backend.listings.dto.ListingCreateRequest;
 import io.github.ladder.backend.listings.dto.ListingResponse;
 import io.github.ladder.backend.listings.dto.ListingSummary;
 import io.github.ladder.backend.listings.dto.ListingUpdateRequest;
+import io.github.ladder.backend.listings.persistence.CategoryEntity;
+import io.github.ladder.backend.listings.persistence.CategoryRepository;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
 import io.github.ladder.backend.listings.persistence.ListingRepository;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,10 @@ import java.util.List;
 @Component
 public class ListingMapperImpl implements ListingMapper {
 
-    public ListingMapperImpl(ListingRepository listingRepository) {
+    private final CategoryRepository categoryRepository;
+
+    public ListingMapperImpl(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -32,6 +37,7 @@ public class ListingMapperImpl implements ListingMapper {
                 e.getId(),
                 e.getTitle(),
                 e.getPriceSats(),
+                e.getCategoryPath(),
                 e.getStatus(),
                 thumbnail,
                 e.getCreatedAt()
@@ -47,25 +53,31 @@ public class ListingMapperImpl implements ListingMapper {
             allImages.addAll(req.images);
         }
 
-        ListingEntity newListingEntity = new ListingEntity(
+        String cp = req.categoryPath == null ? null : req.categoryPath.trim().toLowerCase();
+        if (cp == null || cp.isEmpty()) {
+            throw new IllegalArgumentException("categoryPath required");
+        }
+        CategoryEntity category = categoryRepository.findByPath(cp)
+                .orElseThrow(() -> new IllegalArgumentException("Category path not found: " + req.categoryPath));
+
+        return new ListingEntity(
                 req.title,
                 req.priceSats,
+                category,
                 allImages,
                 req.sellerId
         );
-
-        return newListingEntity;
     }
 
     @Override
     public void applyUpdate(ListingUpdateRequest req, ListingEntity target) {
 
         if (req.title != null) {
-            req.title.trim();
+            String t = req.title.trim();
             if (req.title.isEmpty()) {
                 throw new IllegalArgumentException("Title cannot be empty");
             } else {
-                target.setTitle(req.title);
+                target.setTitle(t);
             }
         }
 
@@ -81,11 +93,17 @@ public class ListingMapperImpl implements ListingMapper {
             target.setStatus(req.status);
         }
 
-        if (req.images != null && req.images.isEmpty()) {
+        if (req.images != null) {
             target.setImages(new ArrayList<>(req.images));
-        }else{
-            target.setImages(req.images);
         }
+
+        if (req.categoryPath != null) {
+            String cp = req.categoryPath.trim().toLowerCase();
+            CategoryEntity category = categoryRepository.findByPath(cp)
+                    .orElseThrow(() -> new IllegalArgumentException("Category path not found: " + req.categoryPath));
+            target.setCategory(category);
+        }
+
     }
 
     @Override
@@ -103,6 +121,7 @@ public class ListingMapperImpl implements ListingMapper {
                 entity.getId(),
                 entity.getTitle(),
                 entity.getPriceSats(),
+                entity.getCategoryPath(),
                 entity.getStatus(),
                 safeImages,
                 entity.getSellerId(),
