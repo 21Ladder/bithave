@@ -1,42 +1,65 @@
-<h1>Listings Page</h1>
+<h1>Listings</h1>
 
-<div>
-  <button (click)="createListing()" routerLink="/listings/new">+ Create new listing</button>
+<div class="toolbar">
+  <button (click)="createListing()">+ Create new listing</button>
+
   <form (ngSubmit)="searchOrSort()">
-    <input type="search" name="q" [(ngModel)]="q"/>
-    <button type="submit">Search</button>
+    <input type="search" name="q" [(ngModel)]="q" placeholder="Search..." />
+    <select name="sort" [(ngModel)]="sort" (change)="searchOrSort()">
+      <option value="createdAt">Created At</option>
+      <option value="priceSats">Price (Sats)</option>
+    </select>
+    <button type="button" (click)="toggleOrder()">
+      {{ order === 'DESC' ? 'Descending' : 'Ascending' }}
+    </button>
+    <button type="submit">Apply</button>
   </form>
-
-  <div class="two">
-    <!-- Category filter -->
-    <div *ngIf="categories$ | async as cats" class="left box">
-      <ul>
-        <p *ngIf="choosenCategorie$" (click)="listItemsOfCategory(choosenCategorie$)">{{ choosenCategorie$ }}</p>
-        <li *ngFor="let category of cats" (click)="listItemsOfCategory(category.name)">{{ category.name }}</li>
-      </ul>
-    </div>
-
-    <div class="right box">
-      <!-- Sorting options -->
-      <select [(ngModel)]="sort" (change)="searchOrSort()">
-        <option value="createdAt">Created At</option>
-        <option value="priceSats">Price (Sats)</option>
-      </select>
-      <!-- Order options -->
-      <button (click)="toggleOrder()">{{ order === 'DESC' ? 'Descending' : 'Ascending' }}</button>
-    
-      <!-- Listings display holds full response for page interaction-->
-      <div *ngIf="listingResponse$ | async as response">
-        <ul>
-          <li *ngFor="let item of response.items" (click)="navigateToListingDetail(item.id)">{{ item.title }} - {{ item.priceSats }} Sats - {{ item.createdAt}}</li>
-        </ul>
-        <button (click)="page = 0; reload()">First Page</button>
-        <button (click)="page = page - 1; previous()" [disabled]="page === 0">Previous</button>
-        <span>Page {{page + 1}} of {{response.totalPages}}</span>
-        <button (click)="page = page + 1; next()" [disabled]="response.hasNext === false">Next</button>
-        <button (click)="page = response.totalPages - 1; reload()">Last Page</button>
-      </div>
-    </div>
-  </div>
 </div>
 
+<!-- Breadcrumbs built from the path -->
+<nav class="breadcrumbs">
+  <a href (click)="$event.preventDefault(); goToLevel(-1)">All</a>
+  <ng-container *ngFor="let seg of crumbs(); let i = index">
+    <span> › </span>
+    <a href (click)="$event.preventDefault(); goToLevel(i)">{{ pretty(seg) }}</a>
+  </ng-container>
+</nav>
+
+<div class="two">
+  <!-- Left: children of current path -->
+  <aside class="left box" *ngIf="cats$ | async as cats">
+    <ul>
+      <li *ngFor="let c of cats">
+        <button class="chip" type="button" (click)="goInto(c)">
+          {{ c.name }}
+        </button>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Right: listings filtered by full path -->
+  <section class="right box" *ngIf="listings$ | async as res">
+    <ul class="listings">
+      <li
+        *ngFor="let item of res.items"
+        (click)="navigateToListingDetail(item.id)"
+        class="listing-row"
+      >
+        <span class="title">{{ item.title }}</span>
+        <span class="meta">
+          {{ item.priceSats }} Sats — {{ item.createdAt | date: 'medium' }}
+        </span>
+      </li>
+    </ul>
+
+    <div class="pager">
+      <button (click)="page = 0; reload()" [disabled]="page === 0">First</button>
+      <button (click)="previous()" [disabled]="page === 0">Previous</button>
+      <span>Page {{ page + 1 }} of {{ res.totalPages }}</span>
+      <button (click)="next()" [disabled]="!res.hasNext">Next</button>
+      <button (click)="page = res.totalPages - 1; reload()" [disabled]="res.totalPages <= 1">
+        Last
+      </button>
+    </div>
+  </section>
+</div>

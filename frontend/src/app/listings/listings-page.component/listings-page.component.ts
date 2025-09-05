@@ -1,117 +1,160 @@
-import { Component, OnInit } from '@angular/core';
-import { inject } from '@angular/core';
-import { ListingsApi } from '../api/listings-api';
-import { map, Observable } from 'rxjs';
-import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs';
+
+import { ListingsApi } from '../api/listings-api';
+import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
 
 @Component({
   selector: 'app-listings-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './listings-page.component.html',
-  styleUrls: ['./listings-page.component.scss']
+  styleUrls: ['./listings-page.component.scss'],
 })
 export class ListingsPageComponent implements OnInit {
-
-  //user search/sort/order input states
-  q: string = '';
-  category: string = '';
-  parent: string = '';
+  // UI States, what my component remembers about itself
+  q = '';
   sort: 'createdAt' | 'priceSats' = 'createdAt';
   order: 'ASC' | 'DESC' = 'ASC';
-  page: number = 0;
-  size: number = 10;
+  page = 0;
+  size = 10;
 
+  // This is the current category path in the URL, depending on how deep the user gets into the category tree it changes, therefore also my api call to the backend changes
+  catPath = '';   // '' means top-level, ALL categories
+
+  // Dependency Injection like on beans in Spring, 
   private readonly api = inject(ListingsApi);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute)
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  listingResponse$!: Observable<PageResponse<ListingSummary>>;
-  categories$!: Observable<CategoryItem[]>;
-  subCategories$!: Observable<CategoryItem[]>;
-  choosenCategorie$!: string;
+  //Observables which I can use in the HTML with async
+  listings$!: Observable<PageResponse<ListingSummary>>;   //all listings
+  cats$!: Observable<CategoryItem[]>;                     // all categories
 
-  //loads the initial list of all the listings
-  ngOnInit() {
-    
-    //read all the query params from the route
+  // ---------- Lifecycle onInit ----------
+  ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
-    params.get('q') ? this.q = params.get('q')! : null;
-    params.get('category') ? this.category = params.get('category')! : null;
-    params.get('parent') ? this.category = params.get('parent')! : null;
-    // gets sort value if possible, should be createdAt or priceSats, null is possible
-    params.get('sort') ? this.sort = params.get('sort') as 'createdAt' | 'priceSats' : null;
-    params.get('order') ? this.order = params.get('order') as 'ASC' | 'DESC' : null;
-    params.get('page') ? this.page = Number(params.get('page')) ?? 0 : null;
-    params.get('size') ? this.size = Number(params.get('size')) ?? 10 : null;
+
+    this.q = params.get('q') ?? '';
+    this.catPath = params.get('cat') ?? '';
+    this.sort = (params.get('sort') as 'createdAt' | 'priceSats') ?? 'createdAt';
+    this.order = (params.get('order') as 'ASC' | 'DESC') ?? 'ASC';
+    this.page = Number(params.get('page') ?? 0);
+    this.size = Number(params.get('size') ?? 10);
+
     this.reload();
   }
 
-  //search for the listings based on the user input
-  searchOrSort(){
-    //true because we reset the pagenumber to 0 if search or sort was choosen
+
+  // URL syncing, if null then its not mentioned in the URL
+  private syncUrl(): void {
+    const queryParams: any = {
+      q: this.q.trim() || null,
+      cat: this.catPath || null, 
+      sort: this.sort,
+      order: this.order,
+      page: this.page,
+      size: this.size,
+    };
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  reload(resetPage = false): void {
+    if (resetPage) this.page = 0;
+
+    this.syncUrl();
+
+    // gets me all the listings depending on the current states
+    this.listings$ = this.api.list(
+      this.q.trim(),
+      this.catPath,
+      this.sort,
+      this.order,
+      this.page,
+      this.size
+    );
+
+    // gets me all the categories for navigation and display on the UI
+    this.cats$ = this.api.getAllCategories(this.catPath);
+  }
+
+  // ---------- Breadcrumbs ----------
+  
+  //returns an array with all the segments of the category path
+  crumbs(): string[] {
+    return this.catPath?.split("/") ?? [];
+  }
+
+  goToLevel(index: number): void {
+    if (index < 0) {
+      this.catPath = '';       // All categories
+    } else {
+      // joins all the segments to a string
+      this.catPath = this.crumbs().slice(0, index + 1).join('/');
+    }
     this.reload(true);
   }
 
-  //reloads if the state changed
-  reload(resetPage = false){
-    if (resetPage) {
-      this.page = 0;
-    }
 
-    //creating the query params object without the search field, merge handles it the following (if null, q is not set)
-    const queryParams: any = {sort: this.sort, order: this.order, page: this.page, size: this.size}
-    const trimmedQ = this.q.trim();
-    queryParams.q = trimmedQ || null;
-
-    //merges the query params and replaces the url
-    this.router.navigate([], {
-      relativeTo: this.route, 
-      queryParams: queryParams, 
-      queryParamsHandling: 'merge', 
-      replaceUrl: true
-    });
-    this.listingResponse$ = this.api.list(trimmedQ, this.category, this.sort, this.order, this.page, this.size);
-
-    if (this.category) {
-      this.choosenCategorie$ = this.category.toUpperCase();
-    }
-    this.categories$ = this.api.getAllCategories(this.parent);
+  // returns me a pretty version of the segment for the UI
+  pretty(seg: string): string {
+    return seg
+      .split('-')
+      .filter(Boolean)
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
   }
 
-  toggleOrder() {
+  // ---------- UI actions ----------
+
+  // go to the ALL categories view
+  setTop(): void {
+    this.catPath = '';
+    this.reload(true);
+  }
+
+  // when a child of a category is clicked, you go into it and get all its children listed + all listings in that category
+  goInto(child: CategoryItem): void {
+    this.catPath = child.path;
+    this.reload(true);
+  }
+
+  // on search and order, I think it makes sense to reset the page to 0
+  searchOrSort(): void {
+    this.reload(true);
+  }
+
+  toggleOrder(): void {
     this.order = this.order === 'ASC' ? 'DESC' : 'ASC';
+    this.reload(true);
+  }
+
+  next(): void {
+    this.page += 1;
     this.reload();
+    window.scrollTo({ top: 0 });
   }
 
-  next(){
-    this.page = this.page++;
+  previous(): void {
+    this.page = Math.max(0, this.page - 1);
     this.reload();
-    window.scrollTo({top: 0});
+    window.scrollTo({ top: 0 });
   }
 
-  previous(){
-    this.page = Math.max(0, this.page--);
-    this.reload();
-    window.scrollTo({top: 0});
+  navigateToListingDetail(id: string): void {
+    this.router.navigate(['/listings', id]);
   }
 
-  navigateToListingDetail(id: string){
-    this.router.navigate(['/listings', id])
-  }
-
-  createListing() {
+  createListing(): void {
     this.router.navigate(['/listings/new']);
   }
-
-  listItemsOfCategory(category: string) {
-    this.category = category;
-    this.parent = category;
-    this.reload();
-  }
 }
-
-  
