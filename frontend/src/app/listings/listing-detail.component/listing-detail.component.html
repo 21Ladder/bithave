@@ -1,32 +1,28 @@
-
 <div>
   <button (click)="goBack()">Back</button>
-  
-  <!-- Loading -->
-  <p *ngIf="loading">Loading…</p>
-  
-  <!-- Error -->
-  <div *ngIf="!loading && errorMessage">
-    {{ errorMessage }}
-  </div>
-  
-  <!-- Loaded -->
-  <ng-container *ngIf="!loading && listing as d">
+
+  @if (listing; as d) {
+    <!-- Loaded -->
     <h1>{{ d.title }}</h1>
     <p>Price: {{ d.priceSats }} Sats</p>
-  
-    <div *ngIf="d.images?.length; else noImages">
+
+    @if (d.images?.length) {
       <img
         [src]="d.images?.[0]"
         [alt]="d.title"
         width="320"
         height="200"
       />
-    </div>
-    <ng-template #noImages>
+    } @else {
       <p>Keine Bilder vorhanden</p>
-    </ng-template>
-  </ng-container>
+    }
+  } @else if (errorMessage) {
+    <!-- Error -->
+    <div>{{ errorMessage }}</div>
+  } @else if (loading) {
+    <!-- Loading -->
+    <p>Loading…</p>
+  }
 
   <button (click)="goToEdit()">Edit</button>
 </div>

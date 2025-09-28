@@ -3,7 +3,8 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router'; 
 import { ListingsApi } from '../api/listings-api';
-import { CreateListingRequest } from '../api/models';
+import { CategoryItem, CreateListingRequest } from '../api/models';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-listing-create.component',
@@ -14,7 +15,7 @@ import { CreateListingRequest } from '../api/models';
 })
 export class ListingCreateComponent {
   title = '';
-  priceSats: number = 0;
+  priceSats: number | null = null;
   category: string = '';
   images: string[] = [];
   imagesText = '';
@@ -25,6 +26,12 @@ export class ListingCreateComponent {
   private router = inject(Router);
   private api = inject(ListingsApi);
 
+  categoryPath = '';   
+  cats$!: Observable<CategoryItem[]>; 
+
+  ngOnInit(): void {
+    this.loadCategories();
+  }
 
   onSubmit(){
     this.errorMsg = null;
@@ -41,7 +48,8 @@ export class ListingCreateComponent {
       title,
       priceSats,
       images: this.images.length ? this.images : null,
-      sellerId: this.sellerID
+      sellerId: this.sellerID,
+      categoryPath: this.categoryPath
     };
     
     this.loading = true;
@@ -73,6 +81,37 @@ export class ListingCreateComponent {
   back(){
     this.router.navigate(['/listings']);
   }
+
+  private loadCategories() {
+    this.cats$ = this.api.getAllCategories(this.categoryPath);
+  }
+
+  crumbs(): string[] {
+    return this.categoryPath?.split("/") ?? [];
+  }
+
+  goToLevel(index: number): void {
+    if (index < 0) {
+      this.categoryPath = '';
+    } else {
+      this.categoryPath = this.crumbs().slice(0, index + 1).join('/');
+    }
+    this.loadCategories();
+  }
+
+  goInto(child: CategoryItem): void {
+    this.categoryPath = child.path;
+    this.loadCategories();
+  }
+
+  pretty(seg: string): string {
+    return seg
+      .split('-')
+      .filter(Boolean)
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
+  }
+
 }
 
 

@@ -39,6 +39,7 @@ export interface CreateListingRequest{
   priceSats: number;
   images: string[] | null;
   sellerId: string;
+  categoryPath: string;
 }
 
 export interface EditListingRequest{
