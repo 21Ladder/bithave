@@ -1,17 +1,67 @@
-
 <div>
-  <form (ngSubmit)="onSubmit()">
-  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+  <!-- Formular -->
+  <form (ngSubmit)="onSubmit()" #f="ngForm">
+    @if (errorMsg) {
+      <div class="error">{{ errorMsg }}</div>
+    }
 
-  <input name="title" [(ngModel)]="title" required maxlength="120" placeholder="Title">
+    <!-- Title -->
+    <input
+      name="title"
+      [(ngModel)]="title"
+      required
+      maxlength="120"
+      placeholder="Title" />
 
-  <input name="priceSats" [(ngModel)]="priceSats" type="number" min="0" step="1" required placeholder="Price in Sats">
+    <!-- Price in Sats -->
+    <input
+      name="priceSats"
+      [(ngModel)]="priceSats"
+      type="number"
+      min="0"
+      step="1"
+      required
+      placeholder="Price in Sats" />
 
-  <textarea name="imagesText" [(ngModel)]="imagesText" placeholder="Image URLs, separated by line or comma"></textarea>
+    <!-- Images -->
+    <textarea
+      name="imagesText"
+      [(ngModel)]="imagesText"
+      placeholder="Image URLs, separated by line or comma">
+    </textarea>
 
-  <button type="submit" [disabled]="loading">{{ loading ? 'Creating…' : 'Create Listing' }}</button>
-</form>
+    <p>Choose the category:</p>
+    <!-- Kategorie-Breadcrumbs -->
+    <nav class="breadcrumbs">
+      <a href (click)="$event.preventDefault(); goToLevel(-1)">All</a>
+      @for (seg of crumbs(); track $index) {
+        <span> › </span>
+        <a href (click)="$event.preventDefault(); goToLevel($index)">
+          {{ pretty(seg) }}
+        </a>
+      }
+    </nav>
 
-  <button (click)="back()">Back</button>
+    <!-- Kategorie-Auswahl -->
+    @if (cats$ | async; as cats) {
+      <aside class="box categories">
+        <ul>
+          @for (c of cats; track c.path) {
+            <li>
+              <button type="button" class="chip" (click)="goInto(c)">
+                {{ c.name }}
+              </button>
+            </li>
+          }
+        </ul>
+      </aside>
+    }
+
+    <!-- Submit -->
+    <button type="submit" [disabled]="loading || f.invalid">
+      @if (loading) { Creating… } @else { Create Listing }
+    </button>
+  </form>
+
+  <button type="button" (click)="back()">Back</button>
 </div>
-
