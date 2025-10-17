@@ -54,6 +54,10 @@ export class ListingsApi {
     return this.http.get<CategoryItem[]>('/api/v1/categories', { params: { parent } });
   }
 
+  getBtcPrice(): Observable<{ price: number }> {
+    return this.http.get<{ price: number }>('/api/v1/btcPrice');
+  }
+
   
 
 }

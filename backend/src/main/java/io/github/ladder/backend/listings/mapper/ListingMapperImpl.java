@@ -36,7 +36,7 @@ public class ListingMapperImpl implements ListingMapper {
         return new ListingSummary(
                 e.getId(),
                 e.getTitle(),
-                e.getPriceSats(),
+                e.getPriceUsd(),
                 e.getCategoryPath(),
                 e.getStatus(),
                 thumbnail,
@@ -62,7 +62,7 @@ public class ListingMapperImpl implements ListingMapper {
 
         return new ListingEntity(
                 req.title,
-                req.priceSats,
+                req.priceUsd,
                 category,
                 allImages,
                 req.sellerId
@@ -82,11 +82,11 @@ public class ListingMapperImpl implements ListingMapper {
         }
 
         //System.out.println("DEBUG in the mapperimpl price before save: " + req.priceSats);
-        if (req.priceSats != null) {
-            if (req.priceSats < 0) {
+        if (req.priceUsd != null) {
+            if (req.priceUsd < 0) {
                 throw new IllegalArgumentException("PriceSats cannot be negative");
             }
-            target.setPriceSats(req.priceSats);
+            target.setPriceUsd(req.priceUsd);
         }
 
         if (req.status != null) {
@@ -120,7 +120,7 @@ public class ListingMapperImpl implements ListingMapper {
         return new ListingResponse(
                 entity.getId(),
                 entity.getTitle(),
-                entity.getPriceSats(),
+                entity.getPriceUsd(),
                 entity.getCategoryPath(),
                 entity.getStatus(),
                 safeImages,

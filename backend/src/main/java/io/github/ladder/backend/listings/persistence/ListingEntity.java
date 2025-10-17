@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static jakarta.persistence.FetchType.LAZY;
-
 
 @Entity
 @Table(name = "listings") // Tabellenname festlegen (stabil für später)
@@ -23,8 +21,8 @@ public class ListingEntity {
     @Column(nullable = false, length = 120)
     private String title;
 
-    @Column(name = "price_sats", nullable = false)
-    private long priceSats;
+    @Column(name = "price_usd", nullable = false)
+    private long priceUsd;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -68,9 +66,9 @@ public class ListingEntity {
 
     protected ListingEntity() {}
 
-    public ListingEntity(String title, long priceSats, CategoryEntity category, List<String> images, UUID sellerId) {
+    public ListingEntity(String title, long priceUsd, CategoryEntity category, List<String> images, UUID sellerId) {
         this.title = title;
-        this.priceSats = priceSats;
+        this.priceUsd = priceUsd;
         this.category = category;
         this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
         this.sellerId = sellerId;
@@ -87,8 +85,8 @@ public class ListingEntity {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public long getPriceSats() { return priceSats; }
-    public void setPriceSats(long priceSats) { this.priceSats = priceSats; }
+    public long getPriceUsd() { return priceUsd; }
+    public void setPriceUsd(long priceUsd) { this.priceUsd = priceUsd; }
 
     public String getCategoryPath() { return this.category.getPath(); }
     public void setCategoryPath(CategoryEntity category) { this.category = category; }

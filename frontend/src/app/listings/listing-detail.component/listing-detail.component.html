@@ -4,7 +4,12 @@
   @if (listing; as d) {
     <!-- Loaded -->
     <h1>{{ d.title }}</h1>
-    <p>Price: {{ d.priceSats }} Sats</p>
+    <p>
+      Price: {{ d.priceUsd }} USD
+      ({{ satsPrice }} Satoshis)
+    </p>
+
+
 
     @if (d.images?.length) {
       <img

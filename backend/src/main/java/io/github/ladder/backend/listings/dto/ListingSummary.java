@@ -8,7 +8,7 @@ import java.util.UUID;
 public record ListingSummary(
         UUID id,
         String title,
-        long priceSats,
+        long priceUsd,
         String categoryPath,
         ListingStatus status,
         String thumbnailUrl,

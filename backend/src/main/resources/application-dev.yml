@@ -13,6 +13,9 @@ spring:
       host: localhost
       port: 6379
 
+coingecko:
+  apiKey: "CG-EhkLNjeQjUUwGQhZfXtK4Pdu"
+
 logging:
   level:
     org.springframework.jdbc.core: INFO

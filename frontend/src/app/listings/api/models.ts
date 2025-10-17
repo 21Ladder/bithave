@@ -1,7 +1,7 @@
 export interface ListingSummary{
   id: string;
   title: string;
-  priceSats: number;
+  priceUsd: number;
   status: 'ACTIVE'|'SOLD'|'ARCHIVED';
   thumbnailUrl: string|null;
   createdAt: string;
@@ -26,7 +26,7 @@ export interface ListParams {
 export interface ListingDetail{
   id: string;
   title: string;
-  priceSats: number;
+  priceUsd: number;
   status: 'ACTIVE'|'SOLD'|'ARCHIVED';
   images: string[] | null;
   sellerId: string;
@@ -36,7 +36,7 @@ export interface ListingDetail{
 
 export interface CreateListingRequest{
   title: string;
-  priceSats: number;
+  priceUsd: number;
   images: string[] | null;
   sellerId: string;
   categoryPath: string;
@@ -44,7 +44,7 @@ export interface CreateListingRequest{
 
 export interface EditListingRequest{
   title?: string;
-  priceSats?: number;
+  priceUsd?: number;
   status?: string;
   images?: string[];
 }
@@ -54,3 +54,11 @@ export interface CategoryItem {
   name: string;
   hasChildren: boolean;
 }
+
+export interface BtcPriceResponse {
+  bitcoin: {
+    eur: number;
+    last_updated_at: number;
+  };
+}
+

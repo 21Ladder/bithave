@@ -17,7 +17,7 @@ import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
 export class ListingsPageComponent implements OnInit {
   // UI States, what my component remembers about itself
   q = '';
-  sort: 'createdAt' | 'priceSats' = 'createdAt';
+  sort: 'createdAt' | 'priceUsd' = 'createdAt';
   order: 'ASC' | 'DESC' = 'ASC';
   page = 0;
   size = 10;
@@ -40,7 +40,7 @@ export class ListingsPageComponent implements OnInit {
 
     this.q = params.get('q') ?? '';
     this.catPath = params.get('cat') ?? '';
-    this.sort = (params.get('sort') as 'createdAt' | 'priceSats') ?? 'createdAt';
+    this.sort = (params.get('sort') as 'createdAt' | 'priceUsd') ?? 'createdAt';
     this.order = (params.get('order') as 'ASC' | 'DESC') ?? 'ASC';
     this.page = Number(params.get('page') ?? 0);
     this.size = Number(params.get('size') ?? 10);

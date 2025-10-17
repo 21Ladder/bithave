@@ -7,7 +7,7 @@
     <input type="search" name="q" [(ngModel)]="q" placeholder="Search..." />
     <select name="sort" [(ngModel)]="sort" (change)="searchOrSort()">
       <option value="createdAt">Created At</option>
-      <option value="priceSats">Price (Sats)</option>
+      <option value="priceUsd">Price (USD)</option>
     </select>
     <button type="button" (click)="toggleOrder()">
       {{ order === 'DESC' ? 'Descending' : 'Ascending' }}
@@ -47,7 +47,7 @@
       >
         <span class="title">{{ item.title }}</span>
         <span class="meta">
-          {{ item.priceSats }} Sats — {{ item.createdAt | date: 'medium' }}
+          {{ item.priceUsd }} USD — {{ item.createdAt | date: 'medium' }}
         </span>
       </li>
     </ul>
