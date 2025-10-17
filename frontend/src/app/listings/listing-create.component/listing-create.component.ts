@@ -15,7 +15,7 @@ import { Observable } from 'rxjs';
 })
 export class ListingCreateComponent {
   title = '';
-  priceSats: number | null = null;
+  priceUsd: number | null = null;
   category: string = '';
   images: string[] = [];
   imagesText = '';
@@ -39,14 +39,14 @@ export class ListingCreateComponent {
     const title = (this.title || '').trim();
     if (!title) { this.errorMsg = 'title is required.'; return; }
     
-    const priceSats = Number(this.priceSats);
-    if (!Number.isFinite(priceSats) || priceSats <= 0) { this.errorMsg = 'price is required.'; return; }
-    
+    const priceUsd = Number(this.priceUsd);
+    if (!Number.isFinite(priceUsd) || priceUsd <= 0) { this.errorMsg = 'price is required.'; return; }
+
     this.images = this.normalizeUrls(this.imagesText).slice(0, 6);
     
     const newListing: CreateListingRequest = {
       title,
-      priceSats,
+      priceUsd: priceUsd,
       images: this.images.length ? this.images : null,
       sellerId: this.sellerID,
       categoryPath: this.categoryPath

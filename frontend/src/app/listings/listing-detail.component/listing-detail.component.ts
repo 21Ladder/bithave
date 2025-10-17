@@ -17,11 +17,12 @@ export class ListingDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  // simple state flags/values
   loading = true;
   errorMessage: string | null = null;
   listing: ListingDetail | null = null;
-  id: string = '';
+  id = '';
+  btcPrice: number = 0;   // current USD per BTC coming from the Database ~ updated every 10 mins
+  satsPrice: number = 0;  // calculated sats price
 
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id') || '';
@@ -31,19 +32,42 @@ export class ListingDetailComponent implements OnInit {
       return;
     }
 
+    // Load detail
     this.api.get(this.id).subscribe({
       next: data => {
         this.listing = data;
         this.loading = false;
+        this.calculateSats(); 
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage =
           err.status === 404 ? 'Entry not found.'
-          : err.status === 0   ? 'Network error – please check.'
-                               : 'Error loading.';
+        : err.status === 0   ? 'Network error – please check.'
+        : 'Error loading.';
         this.loading = false;
       }
     });
+
+    // Load BTC price (USD per BTC)
+    this.api.getBtcPrice().subscribe({
+      next: (res) => {
+        console.log('response:', res);
+        this.btcPrice = Number(res);
+        console.log('BTC price loaded:', this.btcPrice);
+      },
+      error: () => {
+        // show no btc price if error
+      }
+    });
+  }
+
+  private calculateSats() {
+    if (this.listing && typeof this.listing.priceUsd === 'number' && this.btcPrice) {
+      // Calculating the current price in Satoshis based on 1 BTC = 100,000,000 Satoshis
+      this.satsPrice = Math.round(
+        (this.listing.priceUsd / this.btcPrice) * 100_000_000
+      );
+    }
   }
 
   goBack() { this.router.navigate(['/listings']); }

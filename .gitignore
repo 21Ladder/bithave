@@ -11,6 +11,7 @@ frontend/.angular/cache/
 backend/**/.gradle/
 backend/**/build/
 backend/**/out/
+backend/src/main/resources/application-dev.yml
 
 # Docker volumes / data
 infra/docker/**/data/

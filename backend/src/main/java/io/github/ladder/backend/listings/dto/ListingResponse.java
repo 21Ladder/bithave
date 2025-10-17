@@ -9,7 +9,7 @@ import java.util.UUID;
 public record ListingResponse(
         UUID id,
         String title,
-        long priceSats,
+        long priceUsd,
         String categoryPath,
         ListingStatus status,
         List<String> images,

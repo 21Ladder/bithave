@@ -43,7 +43,7 @@ public class ListingServiceImpl implements ListingService {
         // 2. Sort (case-insensitive + trim + Whitelist) Fehlerhandling im Falle
         final String requestedSort = q.sort() == null ? "" : q.sort().trim();
         final String sortField = switch (requestedSort) {
-            case "priceSats", "pricesats", "PRICESATS" -> "priceSats";
+            case "priceusd", "priceUsd", "PRICEUSD" -> "priceUsd";
             case "createdAt", "createdat", "CREATEDAT" -> "createdAt";
             default -> "createdAt";
         };

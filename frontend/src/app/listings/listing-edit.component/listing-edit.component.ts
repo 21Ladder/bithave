@@ -16,7 +16,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class ListingEditComponent {
   id = '';
   title = '';
-  priceSats: number = 0;
+  priceUsd: number = 0;
   status = '';
   imagesText = '';
   images!: string[];
@@ -47,7 +47,7 @@ export class ListingEditComponent {
       next: data => {
         this.listingToBeEdited = data;
         this.title = data.title;
-        this.priceSats = data.priceSats;
+        this.priceUsd = data.priceUsd;
         this.status = data.status;
         
         if(data.images != null){
@@ -75,7 +75,7 @@ export class ListingEditComponent {
 
     this.editedListing = {
       title: this.title,
-      priceSats: this.priceSats,
+      priceUsd: this.priceUsd,
       status: this.status,
       images: this.images
     };
