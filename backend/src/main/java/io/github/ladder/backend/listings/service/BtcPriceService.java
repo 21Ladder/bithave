@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
 
+// this service will fethc the current btc price from coingecko, it is triggered by service/PriceUpdater
 @Service
 public class BtcPriceService {
 
@@ -23,14 +24,15 @@ public class BtcPriceService {
     public BtcPriceResponse fetchCurrentPrice() {
         String url = "/simple/price?ids=bitcoin&vs_currencies=eur&include_last_updated_at=true&x_cg_demo_api_key=" + apiKey;
 
+        //creates the BtcPriceResponse
         BtcPriceResponse response = webClient.get()
                 .uri(url)
                 .retrieve()
                 .bodyToMono(BtcPriceResponse.class)
                 .block();
 
-        BigDecimal price = response.bitcoin.eur;               // ✅ BTC price in EUR
-        long timestamp = response.bitcoin.last_updated_at;     // ✅ UNIX timestamp
+        BigDecimal price = response.bitcoin.eur;
+        long timestamp = response.bitcoin.last_updated_at;
 
         return response;
     }

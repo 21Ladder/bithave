@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+// this service is triggered according to the schedule and activates the BTCPriceService
+// it will also update the btc price in the database to have some existing data if coingecko is down
+// future implementation will have different sources of truth
 @Service
 public class PriceUpdater {
 

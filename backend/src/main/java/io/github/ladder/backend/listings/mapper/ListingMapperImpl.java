@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+// Mapper for the Listing implementation
 @Component
 public class ListingMapperImpl implements ListingMapper {
 
@@ -22,6 +23,7 @@ public class ListingMapperImpl implements ListingMapper {
         this.categoryRepository = categoryRepository;
     }
 
+    // summarizes a listing used in the list method (ListingServiceImpl)
     @Override
     public ListingSummary toSummary(ListingEntity e) {
 
@@ -44,6 +46,7 @@ public class ListingMapperImpl implements ListingMapper {
         );
     }
 
+    // Transforms a "create Listing" request into a ListingEntity
     @Override
     public ListingEntity requestToEntity(ListingCreateRequest req) {
 
@@ -69,6 +72,7 @@ public class ListingMapperImpl implements ListingMapper {
         );
     }
 
+    // updates a Listing with new input from the frontend, checks every input separately
     @Override
     public void applyUpdate(ListingUpdateRequest req, ListingEntity target) {
 
@@ -106,6 +110,7 @@ public class ListingMapperImpl implements ListingMapper {
 
     }
 
+    // creates the ListingResponse for one detailed Listing (shown in the frontend on the detailcomponent)
     @Override
     public ListingResponse toOneResponse(ListingEntity entity) {
 

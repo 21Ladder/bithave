@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { CategoryItem, PageResponse } from './models';
 import { ListingSummary, ListingDetail, CreateListingRequest, EditListingRequest } from './models';
 
+// API service for Listings, categories, BTC price
 @Injectable({providedIn: 'root'})
 export class ListingsApi {
   constructor(private http: HttpClient) {}

@@ -1,13 +1,13 @@
 package io.github.ladder.backend.listings.api;
 
 
-import io.github.ladder.backend.listings.persistence.BtcPrice;
 import io.github.ladder.backend.listings.persistence.BtcPriceRepository;
-import io.github.ladder.backend.listings.service.BtcPriceService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+//gets me the current BTC price from the database and sets the endpoint for the frontend
 @RestController
 @RequestMapping("/api/v1")
 public class BtcPriceController {
