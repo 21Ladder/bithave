@@ -23,7 +23,7 @@ export class ListingsPageComponent implements OnInit {
   size = 10;
 
   // This is the current category path in the URL, depending on how deep the user gets into the category tree it changes, therefore also my api call to the backend changes
-  catPath = '';   // '' means top-level, ALL categories
+  catPath = ''; // '' means top-level, ALL categories
 
   // Dependency Injection like on beans in Spring
   private readonly api = inject(ListingsApi);
@@ -31,8 +31,8 @@ export class ListingsPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   //Observables which I can use in the HTML with async
-  listings$!: Observable<PageResponse<ListingSummary>>;   //all listings
-  cats$!: Observable<CategoryItem[]>;                     // all categories
+  listings$!: Observable<PageResponse<ListingSummary>>; //all listings
+  cats$!: Observable<CategoryItem[]>; // all categories
 
   // ---------- Lifecycle onInit ----------
   ngOnInit(): void {
@@ -48,12 +48,11 @@ export class ListingsPageComponent implements OnInit {
     this.reload();
   }
 
-
   // URL syncing, if null then its not mentioned in the URL
   private syncUrl(): void {
     const queryParams: any = {
       q: this.q.trim() || null,
-      cat: this.catPath || null, 
+      cat: this.catPath || null,
       sort: this.sort,
       order: this.order,
       page: this.page,
@@ -90,27 +89,28 @@ export class ListingsPageComponent implements OnInit {
   // ---------- Breadcrumbs ----------
   //returns an array with all the segments of the category path
   crumbs(): string[] {
-    return this.catPath?.split("/") ?? [];
+    return this.catPath?.split('/') ?? [];
   }
 
   // navigates to a specific category level based on index
   goToLevel(index: number): void {
     if (index < 0) {
-      this.catPath = '';       // All categories
+      this.catPath = ''; // All categories
     } else {
       // joins all the segments to a string
-      this.catPath = this.crumbs().slice(0, index + 1).join('/');
+      this.catPath = this.crumbs()
+        .slice(0, index + 1)
+        .join('/');
     }
     this.reload(true);
   }
-
 
   // returns me a pretty version of the segment for the UI
   pretty(seg: string): string {
     return seg
       .split('-')
       .filter(Boolean)
-      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
       .join(' ');
   }
 
