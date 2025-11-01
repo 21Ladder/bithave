@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+
+//gets me the all the categories from the database
 @RestController
 @RequestMapping("/api/v1")
 public class CategoryController {

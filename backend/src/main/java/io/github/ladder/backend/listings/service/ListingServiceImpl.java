@@ -29,6 +29,7 @@ public class ListingServiceImpl implements ListingService {
         this.mapper = mapper;
     }
 
+    //returns all listings available depending on the sorting and category option comming via the query
     @Transactional(readOnly = true)
     @Override
     public PageResponse<ListingSummary> list(ListingQuery q) {
@@ -99,12 +100,13 @@ public class ListingServiceImpl implements ListingService {
         );
     }
 
-    // helper für List Method um die Specs zu kombinieren
+    // helper for the list method to comnine the specs
     private static <T> Specification<T> and(Specification<T> base, Specification<T> add) {
         if (add == null) return base;
         return (base == null) ? add : base.and(add);
     }
 
+    // returns one listing as respond, used if the user wants to see the detail page of one listing
     @Transactional(readOnly = true)
     @Override
     public ListingResponse getById(UUID id) {
@@ -118,6 +120,7 @@ public class ListingServiceImpl implements ListingService {
         }
     }
 
+    // creates one listing according to the listincreaterequest
     @Transactional()
     @Override
     public UUID create(ListingCreateRequest req) {
@@ -126,6 +129,7 @@ public class ListingServiceImpl implements ListingService {
         return entity.getId();
     }
 
+    //updates one listing in the database
     @Transactional
     @Override
     public ListingResponse update(UUID id, ListingUpdateRequest req) {
@@ -155,7 +159,7 @@ public class ListingServiceImpl implements ListingService {
         return mapper.toOneResponse(listingEntity);
     }
 
-    //method um Statuskonflikte zu erkennen deklarieren, aggieren als Guard bei ListingService.update
+    // method for conflicts, there are several rules how the status of a listing can change
     private static void assertStatusTransition(ListingStatus from, ListingStatus to) {
         switch (from) {
             case ACTIVE -> {
@@ -179,6 +183,7 @@ public class ListingServiceImpl implements ListingService {
     }
 
 
+    // NOT IMPLEMENTED, WILL ARCHIVE LISTINGS IN THE FUTURE
     @Override
     public void archive(UUID id) {
         throw new UnsupportedOperationException("not implemented yet");

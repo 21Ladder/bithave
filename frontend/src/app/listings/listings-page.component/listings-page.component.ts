@@ -25,7 +25,7 @@ export class ListingsPageComponent implements OnInit {
   // This is the current category path in the URL, depending on how deep the user gets into the category tree it changes, therefore also my api call to the backend changes
   catPath = '';   // '' means top-level, ALL categories
 
-  // Dependency Injection like on beans in Spring, 
+  // Dependency Injection like on beans in Spring
   private readonly api = inject(ListingsApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -88,12 +88,12 @@ export class ListingsPageComponent implements OnInit {
   }
 
   // ---------- Breadcrumbs ----------
-  
   //returns an array with all the segments of the category path
   crumbs(): string[] {
     return this.catPath?.split("/") ?? [];
   }
 
+  // navigates to a specific category level based on index
   goToLevel(index: number): void {
     if (index < 0) {
       this.catPath = '';       // All categories
@@ -113,8 +113,6 @@ export class ListingsPageComponent implements OnInit {
       .map(s => s.charAt(0).toUpperCase() + s.slice(1))
       .join(' ');
   }
-
-  // ---------- UI actions ----------
 
   // go to the ALL categories view
   setTop(): void {

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.UUID;
 
+//This controller handles several endpoints, if user request listings, create listings or updates listings
 @RestController
 @RequestMapping("/api/v1")
 public class ListingsController {

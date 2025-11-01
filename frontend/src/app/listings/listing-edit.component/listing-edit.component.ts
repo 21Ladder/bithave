@@ -31,6 +31,7 @@ export class ListingEditComponent {
   listingToBeEdited!: ListingDetail;
   editedListing!: EditListingRequest;
 
+  // loads listing detail on init for editing
   ngOnInit(){
     this.id = this.route.snapshot.paramMap.get('id') ?? '';
     if (!this.id) {
@@ -43,6 +44,7 @@ export class ListingEditComponent {
       this.images = this.normalizeUrls(this.imagesText)
     };
 
+    // Load detail for editing via API
     this.api.get(this.id).subscribe({
       next: data => {
         this.listingToBeEdited = data;
@@ -68,6 +70,7 @@ export class ListingEditComponent {
     
   }
 
+  // handles the form submission to save edited listing
   onSave(f: NgForm){
 
     this.saving = true;
@@ -96,6 +99,7 @@ export class ListingEditComponent {
     })
   }
 
+  // normalizes image URLs from textarea input, later on will be uploaded images to server, not just URLs!
   normalizeUrls(input: string): string[] {
   return input.split(/[\n,]/g)
     .map(s => s.trim())
@@ -104,5 +108,6 @@ export class ListingEditComponent {
     .slice(0, 6);
   }
 
+  // navigates back to the listing details page
   backToDetails() { this.router.navigate(['/listings', this.listingToBeEdited.id]); }
 }
