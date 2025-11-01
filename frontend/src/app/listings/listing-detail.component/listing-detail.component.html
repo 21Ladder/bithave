@@ -2,31 +2,20 @@
   <button (click)="goBack()">Back</button>
 
   @if (listing; as d) {
-    <!-- Loaded -->
-    <h1>{{ d.title }}</h1>
-    <p>
-      Price: {{ d.priceUsd }} USD
-      ({{ satsPrice }} Satoshis)
-    </p>
+  <!-- Loaded -->
+  <h1>{{ d.title }}</h1>
+  <p>Price: {{ d.priceUsd }} USD ({{ satsPrice }} Satoshis)</p>
 
-
-
-    @if (d.images?.length) {
-      <img
-        [src]="d.images?.[0]"
-        [alt]="d.title"
-        width="320"
-        height="200"
-      />
-    } @else {
-      <p>Keine Bilder vorhanden</p>
-    }
-  } @else if (errorMessage) {
-    <!-- Error -->
-    <div>{{ errorMessage }}</div>
+  @if (d.images?.length) {
+  <img [src]="d.images?.[0]" [alt]="d.title" width="320" height="200" />
+  } @else {
+  <p>Keine Bilder vorhanden</p>
+  } } @else if (errorMessage) {
+  <!-- Error -->
+  <div>{{ errorMessage }}</div>
   } @else if (loading) {
-    <!-- Loading -->
-    <p>Loading…</p>
+  <!-- Loading -->
+  <p>Loading…</p>
   }
 
   <button (click)="goToEdit()">Edit</button>

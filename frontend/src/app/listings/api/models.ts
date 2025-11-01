@@ -1,16 +1,18 @@
-export interface ListingSummary{
+export interface ListingSummary {
   id: string;
   title: string;
   priceUsd: number;
-  status: 'ACTIVE'|'SOLD'|'ARCHIVED';
-  thumbnailUrl: string|null;
+  status: 'ACTIVE' | 'SOLD' | 'ARCHIVED';
+  thumbnailUrl: string | null;
   createdAt: string;
 }
 
 export interface PageResponse<T> {
   items: T[];
-  page: number; size: number;
-  totalElements: number; totalPages: number;
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
   hasNext: boolean;
 }
 
@@ -23,18 +25,18 @@ export interface ListParams {
   size?: number;
 }
 
-export interface ListingDetail{
+export interface ListingDetail {
   id: string;
   title: string;
   priceUsd: number;
-  status: 'ACTIVE'|'SOLD'|'ARCHIVED';
+  status: 'ACTIVE' | 'SOLD' | 'ARCHIVED';
   images: string[] | null;
   sellerId: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateListingRequest{
+export interface CreateListingRequest {
   title: string;
   priceUsd: number;
   images: string[] | null;
@@ -42,7 +44,7 @@ export interface CreateListingRequest{
   categoryPath: string;
 }
 
-export interface EditListingRequest{
+export interface EditListingRequest {
   title?: string;
   priceUsd?: number;
   status?: string;
@@ -61,4 +63,3 @@ export interface BtcPriceResponse {
     last_updated_at: number;
   };
 }
-

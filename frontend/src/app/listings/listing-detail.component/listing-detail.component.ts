@@ -21,9 +21,10 @@ export class ListingDetailComponent implements OnInit {
   errorMessage: string | null = null;
   listing: ListingDetail | null = null;
   id = '';
-  btcPrice: number = 0;   // current USD per BTC coming from the Database ~ updated every 10 mins
-  satsPrice: number = 0;  // calculated sats price
+  btcPrice: number = 0; // current USD per BTC coming from the Database ~ updated every 10 mins
+  satsPrice: number = 0; // calculated sats price
 
+  // will load listing detail and btc price on init
   ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id') || '';
     if (!this.id) {
@@ -34,18 +35,20 @@ export class ListingDetailComponent implements OnInit {
 
     // Load detail
     this.api.get(this.id).subscribe({
-      next: data => {
+      next: (data) => {
         this.listing = data;
         this.loading = false;
-        this.calculateSats(); 
+        this.calculateSats();
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage =
-          err.status === 404 ? 'Entry not found.'
-        : err.status === 0   ? 'Network error – please check.'
-        : 'Error loading.';
+          err.status === 404
+            ? 'Entry not found.'
+            : err.status === 0
+            ? 'Network error – please check.'
+            : 'Error loading.';
         this.loading = false;
-      }
+      },
     });
 
     // Load BTC price (USD per BTC)
@@ -57,19 +60,21 @@ export class ListingDetailComponent implements OnInit {
       },
       error: () => {
         // show no btc price if error
-      }
+      },
     });
   }
 
   private calculateSats() {
     if (this.listing && typeof this.listing.priceUsd === 'number' && this.btcPrice) {
       // Calculating the current price in Satoshis based on 1 BTC = 100,000,000 Satoshis
-      this.satsPrice = Math.round(
-        (this.listing.priceUsd / this.btcPrice) * 100_000_000
-      );
+      this.satsPrice = Math.round((this.listing.priceUsd / this.btcPrice) * 100_000_000);
     }
   }
 
-  goBack() { this.router.navigate(['/listings']); }
-  goToEdit() { this.router.navigate(['/listings', this.id, 'edit']); }
+  goBack() {
+    this.router.navigate(['/listings']);
+  }
+  goToEdit() {
+    this.router.navigate(['/listings', this.id, 'edit']);
+  }
 }
