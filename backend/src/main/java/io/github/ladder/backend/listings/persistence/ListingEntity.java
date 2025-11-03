@@ -32,6 +32,12 @@ public class ListingEntity {
     @Column(nullable = false)
     private ListingStatus status;
 
+    @Column(name = "stock_quantity", nullable = false, columnDefinition = "integer default 0")
+    private int quantity;
+
+    @Column(name = "reserved_quantity", nullable = false, columnDefinition = "integer default 0")
+    private int reservedQuantity;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -66,14 +72,16 @@ public class ListingEntity {
 
     protected ListingEntity() {}
 
-    public ListingEntity(String title, long priceUsd, CategoryEntity category, List<String> images, UUID sellerId) {
+    public ListingEntity(String title, long priceUsd, int quantity, CategoryEntity category, List<String> images, UUID sellerId) {
         this.title = title;
         this.priceUsd = priceUsd;
+        this.quantity = Math.max(0, quantity);
         this.category = category;
         this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
         this.sellerId = sellerId;
         this.status = ListingStatus.ACTIVE;
         this.createdAt = Instant.now();
+        this.reservedQuantity = 0;
     }
 
     // --- Getter/Setter (für JPA & Mapper) ---
@@ -94,6 +102,32 @@ public class ListingEntity {
     public CategoryEntity getCategory() { return category; }
     public void setCategory(CategoryEntity category) { this.category = category; }
 
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        if (quantity < this.reservedQuantity) {
+            throw new IllegalArgumentException("Quantity cannot be less than reserved quantity");
+        }
+        this.quantity = quantity;
+    }
+
+    public int getReservedQuantity() { return reservedQuantity; }
+    public void setReservedQuantity(int reservedQuantity) {
+        if (reservedQuantity < 0) {
+            throw new IllegalArgumentException("Reserved quantity cannot be negative");
+        }
+        if (reservedQuantity > this.quantity) {
+            throw new IllegalArgumentException("Reserved quantity cannot exceed quantity");
+        }
+        this.reservedQuantity = reservedQuantity;
+    }
+
+    public int getAvailableQuantity() {
+        return Math.max(0, this.quantity - this.reservedQuantity);
+    }
+
     public ListingStatus getStatus() { return status; }
     public void setStatus(ListingStatus status) { this.status = status; }
 
@@ -104,4 +138,17 @@ public class ListingEntity {
 
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
+
+    public void increaseReserved(int amount) {
+        if (amount < 0) throw new IllegalArgumentException("amount must be positive");
+        setReservedQuantity(this.reservedQuantity + amount);
+    }
+
+    public void decreaseReserved(int amount) {
+        if (amount < 0) throw new IllegalArgumentException("amount must be positive");
+        if (amount > this.reservedQuantity) {
+            throw new IllegalArgumentException("Cannot release more than currently reserved");
+        }
+        setReservedQuantity(this.reservedQuantity - amount);
+    }
 }

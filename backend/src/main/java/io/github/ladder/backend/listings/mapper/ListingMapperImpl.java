@@ -7,7 +7,6 @@ import io.github.ladder.backend.listings.dto.ListingUpdateRequest;
 import io.github.ladder.backend.listings.persistence.CategoryEntity;
 import io.github.ladder.backend.listings.persistence.CategoryRepository;
 import io.github.ladder.backend.listings.persistence.ListingEntity;
-import io.github.ladder.backend.listings.persistence.ListingRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -42,7 +41,8 @@ public class ListingMapperImpl implements ListingMapper {
                 e.getCategoryPath(),
                 e.getStatus(),
                 thumbnail,
-                e.getCreatedAt()
+                e.getCreatedAt(),
+                e.getAvailableQuantity()
         );
     }
 
@@ -56,6 +56,13 @@ public class ListingMapperImpl implements ListingMapper {
             allImages.addAll(req.images);
         }
 
+        if (req.quantity == null) {
+            throw new IllegalArgumentException("quantity required");
+        }
+        if (req.quantity < 0) {
+            throw new IllegalArgumentException("quantity cannot be negative");
+        }
+
         String cp = req.categoryPath == null ? null : req.categoryPath.trim().toLowerCase();
         if (cp == null || cp.isEmpty()) {
             throw new IllegalArgumentException("categoryPath required");
@@ -66,6 +73,7 @@ public class ListingMapperImpl implements ListingMapper {
         return new ListingEntity(
                 req.title,
                 req.priceUsd,
+                req.quantity,
                 category,
                 allImages,
                 req.sellerId
@@ -95,6 +103,10 @@ public class ListingMapperImpl implements ListingMapper {
 
         if (req.status != null) {
             target.setStatus(req.status);
+        }
+
+        if (req.quantity != null) {
+            target.setQuantity(req.quantity);
         }
 
         if (req.images != null) {
@@ -131,7 +143,10 @@ public class ListingMapperImpl implements ListingMapper {
                 safeImages,
                 entity.getSellerId(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getUpdatedAt(),
+                entity.getQuantity(),
+                entity.getReservedQuantity(),
+                entity.getAvailableQuantity()
         );
     }
 }

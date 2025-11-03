@@ -1,18 +1,16 @@
-<h1>Listings</h1>
-
-<div class="toolbar">
-  <button (click)="createListing()">+ Create new listing</button>
-
-  <form (ngSubmit)="searchOrSort()">
+<div class="toolbar box">
+  <form class="filter" (ngSubmit)="searchOrSort()">
     <input type="search" name="q" [(ngModel)]="q" placeholder="Search..." />
-    <select name="sort" [(ngModel)]="sort" (change)="searchOrSort()">
-      <option value="createdAt">Created At</option>
-      <option value="priceUsd">Price (USD)</option>
-    </select>
-    <button type="button" (click)="toggleOrder()">
-      {{ order === 'DESC' ? 'Descending' : 'Ascending' }}
-    </button>
-    <button type="submit">Apply</button>
+    <div class="controls">
+      <select name="sort" [(ngModel)]="sort" (change)="searchOrSort()">
+        <option value="createdAt">Latest</option>
+        <option value="priceUsd">Price (USD)</option>
+      </select>
+      <button type="button" (click)="toggleOrder()">
+        {{ order === 'DESC' ? 'Descending' : 'Ascending' }}
+      </button>
+      <button type="submit">Apply</button>
+    </div>
   </form>
 </div>
 
@@ -46,9 +44,8 @@
         class="listing-row"
       >
         <span class="title">{{ item.title }}</span>
-        <span class="meta">
-          {{ item.priceUsd }} USD — {{ item.createdAt | date: 'medium' }}
-        </span>
+        <span class="meta"> {{ item.priceUsd }} USD — {{ item.createdAt | date : 'medium' }} </span>
+        <span class="meta">Available: {{ item.availableQuantity }}</span>
       </li>
     </ul>
 

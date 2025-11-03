@@ -1,4 +1,29 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar .filter {
+  flex: 1;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.toolbar .filter input[type='search'] {
+  flex: 1;
+}
+
+.toolbar .controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .two { display: flex; gap: 12px; }
-.left { width: 260px; }   /* linke Box */
-.right { flex: 1; }       /* rechte Box füllt Rest */
+.left { width: 260px; }
+.right { flex: 1; }
 .box { border: 1px solid #ddd; padding: 10px; border-radius: 6px; }

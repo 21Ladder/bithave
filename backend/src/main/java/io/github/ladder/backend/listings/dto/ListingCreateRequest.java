@@ -9,6 +9,7 @@ import java.util.UUID;
 public class ListingCreateRequest {
     @NotBlank public String title;
     @NotNull @PositiveOrZero public Long priceUsd;
+    @NotNull @PositiveOrZero public Integer quantity;
     public String categoryPath;
     public List<String> images;
     @NotNull public UUID sellerId;
