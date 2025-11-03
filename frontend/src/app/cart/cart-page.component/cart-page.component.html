@@ -1,0 +1,64 @@
+<h1>Cart</h1>
+
+@if (status) {
+<p class="status">{{ status }}</p>
+} @if (error) {
+<p class="error">{{ error }}</p>
+} @if (loading) {
+<p>Loading …</p>
+} @else { @if (cart$ | async; as cart) { @if (cart.items.length === 0) {
+<p>Your cart is empty.</p>
+<a routerLink="/listings" class="link">Continue shopping</a>
+} @else {
+<ul class="items">
+  <li *ngFor="let item of cart.items; trackBy: trackById" class="item">
+    @if (item.thumbnailUrl) {
+    <img [src]="item.thumbnailUrl!" [alt]="item.title" class="thumb" />
+    }
+    <div class="content">
+      <h3>{{ item.title }}</h3>
+      <p class="price">Unit price: {{ item.unitPriceUsd }} USD</p>
+      <div class="quantity">
+        <button type="button" (click)="decrement(item)" [disabled]="workingItemId === item.id">
+          -
+        </button>
+        <input
+          type="number"
+          min="1"
+          [value]="item.quantity"
+          (change)="onQuantityInput(item, $any($event.target).value)"
+          [disabled]="workingItemId === item.id"
+        />
+        <button type="button" (click)="increment(item)" [disabled]="workingItemId === item.id">
+          +
+        </button>
+      </div>
+      <p class="subtotal">Subtotal: {{ item.subtotalUsd }} USD</p>
+    </div>
+    <button
+      class="remove"
+      type="button"
+      (click)="remove(item)"
+      [disabled]="workingItemId === item.id"
+    >
+      Remove
+    </button>
+  </li>
+</ul>
+
+<section class="summary">
+  <div>
+    <span>Total items:</span>
+    <strong>{{ cart.totalQuantity }}</strong>
+  </div>
+  <div>
+    <span>Subtotal:</span>
+    <strong>{{ cart.totalPriceUsd }} USD</strong>
+  </div>
+  <button type="button" disabled title="Checkout TO BE IMPLEMENTED">
+    Checkout (TO BE IMPLEMENTED)
+  </button>
+</section>
+} } @else {
+<p>No cart data available.</p>
+} }

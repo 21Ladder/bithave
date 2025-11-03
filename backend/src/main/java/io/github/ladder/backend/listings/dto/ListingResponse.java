@@ -15,5 +15,8 @@ public record ListingResponse(
         List<String> images,
         UUID sellerId,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        int quantity,
+        int reservedQuantity,
+        int availableQuantity
 ) {}

@@ -12,6 +12,7 @@ public record ListingSummary(
         String categoryPath,
         ListingStatus status,
         String thumbnailUrl,
-        Instant createdAt
+        Instant createdAt,
+        int availableQuantity
 ) {
 }

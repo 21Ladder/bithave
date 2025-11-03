@@ -26,6 +26,15 @@
         required
         placeholder="Price (USD)" />
 
+      <input
+        name="quantity"
+        [(ngModel)]="quantity"
+        type="number"
+        min="0"
+        step="1"
+        required
+        placeholder="Quantity" />
+
       <!-- Images -->
       <textarea
         name="imagesText"

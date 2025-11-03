@@ -1,22 +1,64 @@
-<div>
-  <button (click)="goBack()">Back</button>
-
+<div class="detail">
   @if (listing; as d) {
-  <!-- Loaded -->
-  <h1>{{ d.title }}</h1>
-  <p>Price: {{ d.priceUsd }} USD ({{ satsPrice }} Satoshis)</p>
+  <div class="detail__header">
+    <button
+      class="detail__button detail__button--secondary"
+      type="button"
+      (click)="goBack()"
+    >
+      Back
+    </button>
+    <button
+      class="detail__button detail__button--primary"
+      type="button"
+      (click)="addToCart()"
+      [disabled]="cartLoading || d.availableQuantity < 1"
+    >
+      {{ cartLoading ? 'Adding…' : 'Add to Cart' }}
+    </button>
+  </div>
 
-  @if (d.images?.length) {
-  <img [src]="d.images?.[0]" [alt]="d.title" width="320" height="200" />
-  } @else {
-  <p>Keine Bilder vorhanden</p>
-  } } @else if (errorMessage) {
+  <!-- Loaded -->
+  <div class="detail__content">
+    <h1>{{ d.title }}</h1>
+    <p>Price: {{ d.priceUsd }} USD ({{ satsPrice }} Satoshis)</p>
+    <p>Available now: {{ d.availableQuantity }} / {{ d.quantity }}</p>
+
+    @if (d.reservedQuantity > 0) {
+      <p>Reserved: {{ d.reservedQuantity }}</p>
+    }
+
+    @if (d.availableQuantity < 1) {
+      <p class="status">Aktuell nicht verfügbar.</p>
+    }
+
+    @if (cartStatus) {
+    <p class="status">{{ cartStatus }}</p>
+    }
+
+    @if (cartError) {
+    <p class="error">{{ cartError }}</p>
+    }
+
+    @if (d.images?.length) {
+    <img [src]="d.images?.[0]" [alt]="d.title" width="320" height="200" />
+    } @else {
+    <p>No images available</p>
+    }
+
+    <button
+      class="detail__button detail__button--secondary"
+      type="button"
+      (click)="goToEdit()"
+    >
+      Edit Listing
+    </button>
+  </div>
+  } @else if (errorMessage) {
   <!-- Error -->
   <div>{{ errorMessage }}</div>
   } @else if (loading) {
   <!-- Loading -->
   <p>Loading…</p>
   }
-
-  <button (click)="goToEdit()">Edit</button>
 </div>

@@ -17,6 +17,7 @@ export class ListingEditComponent {
   id = '';
   title = '';
   priceUsd: number = 0;
+  quantity: number = 0;
   status = '';
   imagesText = '';
   images!: string[];
@@ -50,6 +51,7 @@ export class ListingEditComponent {
         this.listingToBeEdited = data;
         this.title = data.title;
         this.priceUsd = data.priceUsd;
+        this.quantity = data.quantity;
         this.status = data.status;
 
         if (data.images != null) {
@@ -78,6 +80,7 @@ export class ListingEditComponent {
     this.editedListing = {
       title: this.title,
       priceUsd: this.priceUsd,
+      quantity: this.quantity,
       status: this.status,
       images: this.images,
     };

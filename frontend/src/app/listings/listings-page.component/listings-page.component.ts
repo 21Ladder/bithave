@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 
 import { ListingsApi } from '../api/listings-api';
 import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
+import { CartService } from '../../cart/cart.service';
 
 @Component({
   selector: 'app-listings-page',
@@ -29,6 +30,9 @@ export class ListingsPageComponent implements OnInit {
   private readonly api = inject(ListingsApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly cartService = inject(CartService);
+
+  readonly cart$ = this.cartService.cart$;
 
   //Observables which I can use in the HTML with async
   listings$!: Observable<PageResponse<ListingSummary>>; //all listings
@@ -154,5 +158,9 @@ export class ListingsPageComponent implements OnInit {
 
   createListing(): void {
     this.router.navigate(['/listings/new']);
+  }
+
+  goToCart(): void {
+    this.router.navigate(['/cart']);
   }
 }

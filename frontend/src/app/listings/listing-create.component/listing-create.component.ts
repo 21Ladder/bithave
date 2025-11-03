@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 export class ListingCreateComponent {
   title = '';
   priceUsd: number | null = null;
+  quantity: number | null = 1;
   category: string = '';
   images: string[] = [];
   imagesText = '';
@@ -50,11 +51,18 @@ export class ListingCreateComponent {
       return;
     }
 
+    const quantity = Number(this.quantity);
+    if (!Number.isFinite(quantity) || quantity < 0) {
+      this.errorMsg = 'quantity must be 0 or higher.';
+      return;
+    }
+
     this.images = this.normalizeUrls(this.imagesText).slice(0, 6);
 
     const newListing: CreateListingRequest = {
       title,
       priceUsd: priceUsd,
+      quantity: Math.floor(quantity),
       images: this.images.length ? this.images : null,
       sellerId: this.sellerID,
       categoryPath: this.categoryPath,

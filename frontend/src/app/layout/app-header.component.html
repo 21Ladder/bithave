@@ -1,0 +1,11 @@
+<header class="app-header">
+  <a class="brand" routerLink="/listings">BITHAVE</a>
+
+  <button class="cart-button" type="button" [routerLink]="['/cart']">
+    Cart @if (cart$ | async; as cart) {
+    <span class="count">({{ cart?.totalQuantity ?? 0 }})</span>
+    } @else {
+    <span class="count">(0)</span>
+    }
+  </button>
+</header>
