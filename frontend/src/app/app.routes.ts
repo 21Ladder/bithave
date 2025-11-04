@@ -5,7 +5,7 @@ import { ListingCreateComponent } from './listings/listing-create.component/list
 import { ListingEditComponent } from './listings/listing-edit.component/listing-edit.component';
 import { CartPageComponent } from './cart/cart-page.component/cart-page.component';
 
-// here are all the routes for the listings module
+// here are all the routes for the component pages
 export const routes: Routes = [
   { path: 'listings', component: ListingsPageComponent },
   { path: 'listings/new', component: ListingCreateComponent },
@@ -13,6 +13,6 @@ export const routes: Routes = [
   { path: 'listings/:id', component: ListingDetailComponent },
   { path: 'cart', component: CartPageComponent },
 
-  // default route
+  // default route to listings
   { path: '', pathMatch: 'full', redirectTo: 'listings' },
 ];

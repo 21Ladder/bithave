@@ -6,7 +6,7 @@ import { CartService } from '../cart/cart.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, AsyncPipe, NgIf],
+  imports: [RouterModule, AsyncPipe],
   templateUrl: './app-header.component.html',
   styleUrls: ['./app-header.component.scss'],
 })

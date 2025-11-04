@@ -29,7 +29,7 @@ export class CartPageComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-        this.error = 'Warenkorb konnte nicht geladen werden.';
+        this.error = 'Cart could not be loaded.';
       },
     });
   }
@@ -67,8 +67,8 @@ export class CartPageComponent implements OnInit {
   remove(item: CartItem): void {
     this.beginAction(item.id);
     this.cartService.removeItem(item.id).subscribe({
-      next: () => this.finishAction('Artikel entfernt.'),
-      error: () => this.failAction('Artikel konnte nicht entfernt werden.'),
+      next: () => this.finishAction('Item removed.'),
+      error: () => this.failAction('Item could not be removed.'),
     });
   }
 
@@ -76,8 +76,8 @@ export class CartPageComponent implements OnInit {
   private updateQuantity(item: CartItem, quantity: number): void {
     this.beginAction(item.id);
     this.cartService.updateQuantity(item.id, quantity).subscribe({
-      next: () => this.finishAction('Menge aktualisiert.'),
-      error: () => this.failAction('Menge konnte nicht angepasst werden.'),
+      next: () => this.finishAction('Quantity updated.'),
+      error: () => this.failAction('Quantity could not be updated.'),
     });
   }
 
