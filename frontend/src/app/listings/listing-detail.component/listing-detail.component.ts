@@ -41,8 +41,8 @@ export class ListingDetailComponent implements OnInit {
     }
 
     // Load detail
-    this.api.get(this.id).subscribe({
-      next: (data) => {
+    this.api.getDetailListing(this.id).subscribe({
+      next: (data: ListingDetail) => {
         this.listing = data;
         this.loading = false;
         this.calculateSats();
@@ -60,7 +60,7 @@ export class ListingDetailComponent implements OnInit {
 
     // Load BTC price (USD per BTC)
     this.api.getBtcPrice().subscribe({
-      next: (res) => {
+      next: (res: number) => {
         this.btcPrice = res;
         console.log('BTC price loaded:', this.btcPrice);
         this.calculateSats();

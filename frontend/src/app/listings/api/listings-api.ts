@@ -5,7 +5,7 @@ import { CategoryItem, PageResponse } from './models';
 import { ListingSummary, ListingDetail, CreateListingRequest, EditListingRequest } from './models';
 
 // API service for Listings, categories, BTC price
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class ListingsApi {
   constructor(private http: HttpClient) {}
 
@@ -18,8 +18,7 @@ export class ListingsApi {
     size: number = 10,
     status?: string
   ): Observable<PageResponse<ListingSummary>> {
-
-    const params: any = {page, size};
+    const params: any = { page, size };
     if (status) {
       params.status = status;
     }
@@ -29,17 +28,17 @@ export class ListingsApi {
     if (order) {
       params.order = order;
     }
-    if (q && q.trim()){
+    if (q && q.trim()) {
       params.q = q.trim();
     }
-    if (category && category.trim()){
+    if (category && category.trim()) {
       params.category = category.trim();
     }
 
-    return this.http.get<PageResponse<ListingSummary>>('/api/v1/listings', {params});
-  };
+    return this.http.get<PageResponse<ListingSummary>>('/api/v1/listings', { params });
+  }
 
-  get(id:string): Observable<ListingDetail> {
+  getDetailListing(id: string): Observable<ListingDetail> {
     return this.http.get<ListingDetail>(`/api/v1/listings/${id}`);
   }
 
@@ -47,7 +46,7 @@ export class ListingsApi {
     return this.http.post<ListingDetail>('/api/v1/listings', newListing);
   }
 
-  editListing(uuid: string, editedListing: EditListingRequest): Observable<ListingDetail>{
+  editListing(uuid: string, editedListing: EditListingRequest): Observable<ListingDetail> {
     return this.http.patch<ListingDetail>(`/api/v1/listings/${uuid}`, editedListing);
   }
 
@@ -58,7 +57,4 @@ export class ListingsApi {
   getBtcPrice(): Observable<number> {
     return this.http.get<number>('/api/v1/btcPrice');
   }
-
-  
-
 }
