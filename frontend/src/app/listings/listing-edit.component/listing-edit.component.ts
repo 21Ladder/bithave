@@ -46,8 +46,8 @@ export class ListingEditComponent {
     }
 
     // Load detail for editing via API
-    this.api.get(this.id).subscribe({
-      next: (data) => {
+    this.api.getDetailListing(this.id).subscribe({
+      next: (data: ListingDetail) => {
         this.listingToBeEdited = data;
         this.title = data.title;
         this.priceUsd = data.priceUsd;
@@ -86,10 +86,10 @@ export class ListingEditComponent {
     };
 
     this.api.editListing(this.id, this.editedListing).subscribe({
-      next: (response) => {
+      next: (response: ListingDetail) => {
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         this.loading = false;
         this.errorMessage = err.message || 'Failed to edit listing.';
       },
