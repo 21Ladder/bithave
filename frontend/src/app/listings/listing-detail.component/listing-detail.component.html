@@ -1,11 +1,7 @@
 <div class="detail">
   @if (listing; as d) {
   <div class="detail__header">
-    <button
-      class="detail__button detail__button--secondary"
-      type="button"
-      (click)="goBack()"
-    >
+    <button class="detail__button detail__button--secondary" type="button" (click)="goBack()">
       Back
     </button>
     <button
@@ -25,34 +21,28 @@
     <p>Available now: {{ d.availableQuantity }} / {{ d.quantity }}</p>
 
     @if (d.reservedQuantity > 0) {
-      <p>Reserved: {{ d.reservedQuantity }}</p>
-    }
-
-    @if (d.availableQuantity < 1) {
-      <p class="status">Aktuell nicht verfügbar.</p>
-    }
-
-    @if (cartStatus) {
+    <p>Reserved: {{ d.reservedQuantity }}</p>
+    } @if (d.availableQuantity < 1) {
+    <p class="status">Aktuell nicht verfügbar.</p>
+    } @if (cartStatus) {
     <p class="status">{{ cartStatus }}</p>
-    }
-
-    @if (cartError) {
+    } @if (cartError) {
     <p class="error">{{ cartError }}</p>
-    }
-
-    @if (d.images?.length) {
-    <img [src]="d.images?.[0]" [alt]="d.title" width="320" height="200" />
+    } @if (d.images?.length) {
+    <div class="detail__image">
+      <img [src]="d.images?.[0]" [alt]="d.title" />
+    </div>
     } @else {
     <p>No images available</p>
     }
 
-    <button
+    <!-- <button
       class="detail__button detail__button--secondary"
       type="button"
       (click)="goToEdit()"
-    >
-      Edit Listing
-    </button>
+    > -->
+    <!-- Edit Listing
+    </button> -->
   </div>
   } @else if (errorMessage) {
   <!-- Error -->

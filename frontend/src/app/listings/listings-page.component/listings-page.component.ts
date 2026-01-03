@@ -7,11 +7,12 @@ import { Observable } from 'rxjs';
 import { ListingsApi } from '../api/listings-api';
 import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
 import { CartService } from '../../cart/cart.service';
+import { ListingCardComponent } from '../listing-card/listing-card.component';
 
 @Component({
   selector: 'app-listings-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, ListingCardComponent],
   templateUrl: './listings-page.component.html',
   styleUrls: ['./listings-page.component.scss'],
 })
@@ -21,7 +22,7 @@ export class ListingsPageComponent implements OnInit {
   sort: 'createdAt' | 'priceUsd' = 'createdAt';
   order: 'ASC' | 'DESC' = 'ASC';
   page = 0;
-  size = 10;
+  size = 20;
 
   // This is the current category path in the URL, depending on how deep the user gets into the category tree it changes, therefore also my api call to the backend changes
   catPath = ''; // '' means top-level, ALL categories
@@ -47,7 +48,7 @@ export class ListingsPageComponent implements OnInit {
     this.sort = (params.get('sort') as 'createdAt' | 'priceUsd') ?? 'createdAt';
     this.order = (params.get('order') as 'ASC' | 'DESC') ?? 'ASC';
     this.page = Number(params.get('page') ?? 0);
-    this.size = Number(params.get('size') ?? 10);
+    this.size = Number(params.get('size') ?? 20);
 
     this.reload();
   }

@@ -54,10 +54,16 @@
   <div>
     <span>Subtotal:</span>
     <strong>{{ cart.totalPriceUsd }} USD</strong>
+    @if (btcPrice && totalSats(cart.totalPriceUsd) !== null) {
+    <span> ({{ totalSats(cart.totalPriceUsd) }} sats)</span>
+    }
   </div>
-  <button type="button" disabled title="Checkout TO BE IMPLEMENTED">
-    Checkout (TO BE IMPLEMENTED)
+  <button type="button" (click)="startCheckout()" [disabled]="checkoutLoading">
+    {{ checkoutLoading ? 'Creating invoice…' : 'Pay with BTCPay (Lightning)' }}
   </button>
+  @if (checkoutError) {
+  <p class="error">{{ checkoutError }}</p>
+  }
 </section>
 } } @else {
 <p>No cart data available.</p>

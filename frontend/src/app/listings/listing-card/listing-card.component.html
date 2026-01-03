@@ -1,0 +1,12 @@
+<article class="card" (click)="onClick()">
+  <div class="thumb">
+    <img [src]="imageSrc()" [alt]="listing.title" loading="lazy" />
+  </div>
+  <div class="body">
+    <div class="title">{{ listing.title }}</div>
+    <div class="price">{{ listing.priceUsd | number : '1.0-0' }} USD</div>
+    <div class="meta">
+      <span class="qty">Available: {{ listing.availableQuantity }}</span>
+    </div>
+  </div>
+</article>

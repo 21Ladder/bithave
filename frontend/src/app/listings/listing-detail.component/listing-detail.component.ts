@@ -92,7 +92,7 @@ export class ListingDetailComponent implements OnInit {
 
     if (this.listing.availableQuantity < 1) {
       this.cartStatus = null;
-      this.cartError = 'Artikel ist derzeit nicht verfügbar.';
+      this.cartError = 'Article is currently unavailable.';
       return;
     }
 
@@ -103,7 +103,7 @@ export class ListingDetailComponent implements OnInit {
     this.cartService.addItem(this.listing.id).subscribe({
       next: () => {
         this.cartLoading = false;
-        this.cartStatus = 'Artikel wurde dem Warenkorb hinzugefügt.';
+        this.cartStatus = 'Article has been added to the cart.';
         if (this.listing) {
           this.listing = {
             ...this.listing,
@@ -116,8 +116,8 @@ export class ListingDetailComponent implements OnInit {
         this.cartLoading = false;
         this.cartError =
           err.status === 409
-            ? 'Nicht genügend Bestand verfügbar.'
-            : 'Artikel konnte nicht in den Warenkorb gelegt werden.';
+            ? 'Not enough stock available.'
+            : 'Article could not be added to the cart.';
       },
     });
   }

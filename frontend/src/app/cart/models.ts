@@ -15,6 +15,14 @@ export interface Cart {
   totalPriceUsd: number;
 }
 
+export interface CheckoutResponse {
+  invoiceId: string;
+  status?: string | null;
+  checkoutLink?: string | null;
+  amount?: number | null;
+  currency?: string | null;
+}
+
 export interface AddCartItemRequest {
   listingId: string;
   quantity?: number;

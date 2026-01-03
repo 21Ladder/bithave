@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../cart.service';
+import { ListingsApi } from '../../listings/api/listings-api';
 import { CartItem } from '../models';
 
 @Component({
@@ -13,6 +14,7 @@ import { CartItem } from '../models';
 })
 export class CartPageComponent implements OnInit {
   private readonly cartService = inject(CartService);
+  private readonly listingsApi = inject(ListingsApi);
 
   readonly cart$ = this.cartService.cart$;
 
@@ -20,6 +22,9 @@ export class CartPageComponent implements OnInit {
   error: string | null = null;
   status: string | null = null;
   workingItemId: string | null = null;
+  btcPrice: number | null = null; // USD per BTC
+  checkoutError: string | null = null;
+  checkoutLoading = false;
 
   // Lifecycle hook to load cart on component init
   ngOnInit(): void {
@@ -31,6 +36,11 @@ export class CartPageComponent implements OnInit {
         this.loading = false;
         this.error = 'Cart could not be loaded.';
       },
+    });
+
+    this.listingsApi.getBtcPrice().subscribe({
+      next: (price) => (this.btcPrice = price),
+      error: () => (this.btcPrice = null),
     });
   }
 
@@ -98,5 +108,29 @@ export class CartPageComponent implements OnInit {
   private failAction(message: string): void {
     this.workingItemId = null;
     this.error = message;
+  }
+
+  totalSats(totalUsd: number): number | null {
+    if (!this.btcPrice || this.btcPrice <= 0) return null;
+    return Math.round((totalUsd / this.btcPrice) * 100_000_000);
+  }
+
+  startCheckout(): void {
+    this.checkoutError = null;
+    this.checkoutLoading = true;
+    this.cartService.checkout().subscribe({
+      next: (res) => {
+        this.checkoutLoading = false;
+        if (res.checkoutLink) {
+          window.location.href = res.checkoutLink;
+        } else {
+          this.checkoutError = 'No checkout link returned.';
+        }
+      },
+      error: () => {
+        this.checkoutLoading = false;
+        this.checkoutError = 'Checkout failed. Please try again.';
+      },
+    });
   }
 }

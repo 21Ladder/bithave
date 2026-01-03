@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { CartApi } from './cart-api';
-import { Cart } from './models';
+import { Cart, CheckoutResponse } from './models';
 
 const STORAGE_KEY = 'bithave-cart-id';
 
@@ -114,5 +114,11 @@ export class CartService {
     } catch {
       // ignore storage errors
     }
+  }
+
+  checkout(): Observable<CheckoutResponse> {
+    return this.ensureCartId().pipe(
+      switchMap((cartId) => this.api.checkout(cartId))
+    );
   }
 }
