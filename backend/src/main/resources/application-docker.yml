@@ -13,6 +13,14 @@ spring:
       host: redis
       port: 6379
 
+coingecko:
+  apiKey: ${COINGECKO_API_KEY}
+
+btcpay:
+  url: ${BTCPAY_URL}
+  store-id: ${BTCPAY_STORE_ID}
+  api-token: ${BTCPAY_API_TOKEN}
+
 logging:
   level:
     root: INFO

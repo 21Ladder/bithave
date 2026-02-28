@@ -9,7 +9,7 @@ import org.springframework.core.annotation.Order
 import java.util.Locale
 import java.util.UUID
 
-@Profile("dev")
+@Profile("dev", "docker")
 @Configuration
 class ListingsDevSeeder {
 
