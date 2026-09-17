@@ -7,7 +7,7 @@ import java.util.UUID
 data class ListingResponse(
     val id: UUID,
     val title: String,
-    val priceUsd: Long,
+    val priceCents: Long,
     val categoryPath: String,
     val status: ListingStatus,
     val images: List<String>,

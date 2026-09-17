@@ -1,5 +1,41 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+
+  &:focus {
+    left: var(--space-4);
+    top: var(--space-2);
+  }
+}
+
 .app-main {
-  max-width: 1200px;
+  flex: 1;
+  outline: none;
+}
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  background-color: var(--surface-raised);
+}
+
+.app-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: var(--spacing-6);
+  padding: var(--space-5) var(--space-4);
+  font-size: var(--font-size-sm);
 }

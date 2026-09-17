@@ -25,14 +25,14 @@ object ListingSpecs {
     fun priceMin(min: Long?): Specification<ListingEntity>? {
         min ?: return null
         return Specification { root, _, cb ->
-            cb.greaterThanOrEqualTo(root.get("priceUsd"), min)
+            cb.greaterThanOrEqualTo(root.get("priceCents"), min)
         }
     }
 
     fun priceMax(max: Long?): Specification<ListingEntity>? {
         max ?: return null
         return Specification { root, _, cb ->
-            cb.lessThanOrEqualTo(root.get("priceUsd"), max)
+            cb.lessThanOrEqualTo(root.get("priceCents"), max)
         }
     }
 

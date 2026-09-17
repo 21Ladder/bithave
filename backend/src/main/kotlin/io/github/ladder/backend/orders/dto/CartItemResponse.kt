@@ -8,7 +8,7 @@ data class CartItemResponse(
     val listingId: UUID,
     val title: String,
     val thumbnailUrl: String?,
-    val unitPriceUsd: Long,
+    val unitPriceCents: Long,
     val quantity: Int,
-    val subtotalUsd: Long
+    val subtotalCents: Long
 )

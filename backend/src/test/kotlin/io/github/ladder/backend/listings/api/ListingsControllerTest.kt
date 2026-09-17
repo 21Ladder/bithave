@@ -7,7 +7,9 @@ import io.github.ladder.backend.listings.dto.PageResponse
 import io.github.ladder.backend.listings.service.ListingService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import io.github.ladder.backend.users.service.CurrentUserProvider
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
 import java.time.Instant
 import java.util.UUID
 import kotlin.test.assertFailsWith
@@ -20,7 +22,7 @@ class ListingsControllerTest {
     @BeforeEach
     fun setUp() {
         listingService = RecordingListingService()
-        controller = ListingsController(listingService)
+        controller = ListingsController(listingService, mock(CurrentUserProvider::class.java))
     }
 
     @Test
@@ -31,7 +33,7 @@ class ListingsControllerTest {
                 ListingSummary(
                     id = UUID.randomUUID(),
                     title = "Title",
-                    priceUsd = 1000L,
+                    priceCents = 1000L,
                     categoryPath = "root/category",
                     status = ListingStatus.ACTIVE,
                     thumbnailUrl = "thumb.jpg",
@@ -72,8 +74,8 @@ class ListingsControllerTest {
         assertThat(sentQuery.status).isEqualTo("status")
         assertThat(sentQuery.q).isEqualTo("q")
         assertThat(sentQuery.category).isEqualTo("category")
-        assertThat(sentQuery.minPriceSats).isNull()
-        assertThat(sentQuery.maxPriceSats).isEqualTo(50L)
+        assertThat(sentQuery.minPriceCents).isNull()
+        assertThat(sentQuery.maxPriceCents).isEqualTo(50L)
         assertThat(sentQuery.sellerId).isEqualTo(sellerId)
     }
 
@@ -109,7 +111,7 @@ class ListingsControllerTest {
         }
 
         override fun getById(id: UUID) = throw UnsupportedOperationException()
-        override fun create(req: io.github.ladder.backend.listings.dto.ListingCreateRequest) = throw UnsupportedOperationException()
+        override fun create(req: io.github.ladder.backend.listings.dto.ListingCreateRequest, sellerId: UUID) = throw UnsupportedOperationException()
         override fun update(id: UUID, req: io.github.ladder.backend.listings.dto.ListingUpdateRequest) = throw UnsupportedOperationException()
         override fun archive(id: UUID) = throw UnsupportedOperationException()
     }

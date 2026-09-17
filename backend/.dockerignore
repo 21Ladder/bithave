@@ -21,3 +21,11 @@ target/
 # Docker
 Dockerfile
 .dockerignore
+
+# Secrets, never bake into image layers
+.env
+*.env
+src/main/resources/application-dev.yml
+
+# OS
+.DS_Store

@@ -1,54 +1,101 @@
-<div class="detail">
-  @if (listing; as d) {
-  <div class="detail__header">
-    <button class="detail__button detail__button--secondary" type="button" (click)="goBack()">
-      Back
-    </button>
-    <button
-      class="detail__button detail__button--primary"
-      type="button"
-      (click)="addToCart()"
-      [disabled]="cartLoading || d.availableQuantity < 1"
-    >
-      {{ cartLoading ? 'Adding…' : 'Add to Cart' }}
-    </button>
-  </div>
-
-  <!-- Loaded -->
-  <div class="detail__content">
-    <h1>{{ d.title }}</h1>
-    <p>Price: {{ d.priceUsd }} USD ({{ satsPrice }} Satoshis)</p>
-    <p>Available now: {{ d.availableQuantity }} / {{ d.quantity }}</p>
-
-    @if (d.reservedQuantity > 0) {
-    <p>Reserved: {{ d.reservedQuantity }}</p>
-    } @if (d.availableQuantity < 1) {
-    <p class="status">Aktuell nicht verfügbar.</p>
-    } @if (cartStatus) {
-    <p class="status">{{ cartStatus }}</p>
-    } @if (cartError) {
-    <p class="error">{{ cartError }}</p>
-    } @if (d.images?.length) {
-    <div class="detail__image">
-      <img [src]="d.images?.[0]" [alt]="d.title" />
+<div class="page">
+  @if (loading()) {
+    <div class="detail">
+      <div class="skeleton detail__gallery-skeleton"></div>
+      <div class="stack">
+        <div class="skeleton line"></div>
+        <div class="skeleton line short"></div>
+      </div>
     </div>
-    } @else {
-    <p>No images available</p>
-    }
+  } @else if (error() && !listing()) {
+    <div class="notice notice--error" role="alert">{{ error() }}</div>
+    <a class="btn" routerLink="/listings">Back to the shop</a>
+  } @else if (listing()) {
+    @if (listing()!; as d) {
+    <a class="back" routerLink="/listings">&larr; Back to the shop</a>
 
-    <!-- <button
-      class="detail__button detail__button--secondary"
-      type="button"
-      (click)="goToEdit()"
-    > -->
-    <!-- Edit Listing
-    </button> -->
-  </div>
-  } @else if (errorMessage) {
-  <!-- Error -->
-  <div>{{ errorMessage }}</div>
-  } @else if (loading) {
-  <!-- Loading -->
-  <p>Loading…</p>
+    <div class="detail">
+      <div class="gallery">
+        <div class="gallery__main">
+          <img
+            [src]="images()[activeImage()]"
+            [alt]="d.title"
+            (error)="onImageError($event)"
+          />
+        </div>
+
+        @if (images().length > 1) {
+          <div class="gallery__thumbs" role="group" aria-label="Product images">
+            @for (image of images(); track $index) {
+              <button
+                type="button"
+                class="gallery__thumb"
+                [class.is-active]="activeImage() === $index"
+                [attr.aria-label]="'Show image ' + ($index + 1)"
+                [attr.aria-pressed]="activeImage() === $index"
+                (click)="selectImage($index)"
+              >
+                <img [src]="image" alt="" (error)="onImageError($event)" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="info">
+        <h1>{{ d.title }}</h1>
+        <p class="price">{{ d.priceCents | eur }}</p>
+
+        @if (d.priceCents | sats: btcPrice(); as sats) {
+          <p class="text-muted sats">about {{ sats }} sats</p>
+        }
+
+        <p class="availability">
+          @if (d.status === 'ACTIVE' && d.availableQuantity > 0) {
+            <span class="badge badge--success">In stock</span>
+            <span class="text-muted">{{ d.availableQuantity }} available</span>
+          } @else {
+            <span class="badge badge--danger">Currently unavailable</span>
+          }
+        </p>
+
+        @if (d.status === 'ACTIVE' && d.availableQuantity > 0) {
+          <div class="buy">
+            <div class="field quantity">
+              <label class="field__label" for="quantity">Quantity</label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                [max]="d.availableQuantity"
+                [(ngModel)]="quantity"
+                name="quantity"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+
+            <button class="btn btn--primary" type="button" [disabled]="adding()" (click)="addToCart()">
+              {{ adding() ? 'Adding...' : 'Add to cart' }}
+            </button>
+          </div>
+        }
+
+        <div aria-live="polite">
+          @if (status(); as message) {
+            <p class="notice notice--success">
+              {{ message }} <a routerLink="/cart">View cart</a>
+            </p>
+          }
+          @if (error(); as message) {
+            <p class="notice notice--error" role="alert">{{ message }}</p>
+          }
+        </div>
+
+        @if (auth.isAdmin()) {
+          <a class="btn btn--sm" [routerLink]="['/listings', d.id, 'edit']">Edit listing</a>
+        }
+      </div>
+    </div>
+    }
   }
 </div>

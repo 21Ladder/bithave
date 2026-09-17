@@ -16,6 +16,7 @@ import jakarta.persistence.OrderColumn
 import jakarta.persistence.PrePersist
 import jakarta.persistence.PreUpdate
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import org.hibernate.annotations.UuidGenerator
 import java.time.Instant
 import java.util.UUID
@@ -32,8 +33,8 @@ class ListingEntity() {
     @Column(nullable = false, length = 120)
     var title: String = ""
 
-    @Column(name = "price_usd", nullable = false)
-    var priceUsd: Long = 0
+    @Column(name = "price_cents", nullable = false)
+    var priceCents: Long = 0
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -58,6 +59,11 @@ class ListingEntity() {
             require(value <= quantity) { "Reserved quantity cannot exceed quantity" }
             field = value
         }
+
+    // guards against two carts reserving the same last unit
+    @Version
+    @Column(nullable = false)
+    var version: Long = 0
 
     @Column(name = "created_at", nullable = false, updatable = false)
     var createdAt: Instant = Instant.now()
@@ -85,14 +91,14 @@ class ListingEntity() {
 
     constructor(
         title: String,
-        priceUsd: Long,
+        priceCents: Long,
         quantity: Int,
         category: CategoryEntity,
         images: List<String>,
         sellerId: UUID
     ) : this() {
         this.title = title
-        this.priceUsd = priceUsd
+        this.priceCents = priceCents
         this.quantity = quantity.coerceAtLeast(0)
         this.category = category
         this.images = images.toList()

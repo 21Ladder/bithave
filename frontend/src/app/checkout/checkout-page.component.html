@@ -1,0 +1,98 @@
+<div class="page">
+  <h1>Checkout</h1>
+
+  @if (isEmpty()) {
+    <div class="notice notice--info">
+      Your cart is empty. <a routerLink="/listings">Browse the shop</a>
+    </div>
+  } @else {
+    <div class="checkout">
+      <form class="checkout__form card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <h2>Contact</h2>
+        <div class="field">
+          <label class="field__label" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            autocomplete="email"
+            formControlName="email"
+            [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+          />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <p class="field__error">We need a valid email to send your confirmation.</p>
+          }
+        </div>
+
+        <h2>Shipping address</h2>
+        <div class="field">
+          <label class="field__label" for="name">Full name</label>
+          <input id="name" autocomplete="name" formControlName="name" />
+          @if (form.controls.name.touched && form.controls.name.invalid) {
+            <p class="field__error">Please enter a name.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="street">Street and number</label>
+          <input id="street" autocomplete="street-address" formControlName="street" />
+          @if (form.controls.street.touched && form.controls.street.invalid) {
+            <p class="field__error">Please enter a street.</p>
+          }
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="field__label" for="postalCode">Postal code</label>
+            <input id="postalCode" autocomplete="postal-code" formControlName="postalCode" />
+            @if (form.controls.postalCode.touched && form.controls.postalCode.invalid) {
+              <p class="field__error">Required.</p>
+            }
+          </div>
+
+          <div class="field field--grow">
+            <label class="field__label" for="city">City</label>
+            <input id="city" autocomplete="address-level2" formControlName="city" />
+            @if (form.controls.city.touched && form.controls.city.invalid) {
+              <p class="field__error">Required.</p>
+            }
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="country">Country</label>
+            <input id="country" maxlength="2" autocomplete="country" formControlName="country" />
+            @if (form.controls.country.touched && form.controls.country.invalid) {
+              <p class="field__error">Two letter code.</p>
+            }
+          </div>
+        </div>
+
+        @if (error(); as message) {
+          <p class="notice notice--error" role="alert">{{ message }}</p>
+        }
+
+        <button class="btn btn--primary btn--block" type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Creating invoice...' : 'Pay with Bitcoin' }}
+        </button>
+        <p class="text-muted hint">You will be taken to BTCPay Server to complete the payment.</p>
+      </form>
+
+      <aside class="checkout__summary card" aria-label="Order summary">
+        <h2>Your order</h2>
+        @if (cart(); as c) {
+          <ul class="summary__items">
+            @for (item of c.items; track item.id) {
+              <li>
+                <span class="summary__title">{{ item.quantity }}&times; {{ item.title }}</span>
+                <span>{{ item.subtotalCents | eur }}</span>
+              </li>
+            }
+          </ul>
+          <div class="summary__total">
+            <span>Total</span>
+            <strong>{{ c.totalPriceCents | eur }}</strong>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+</div>

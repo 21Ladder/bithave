@@ -9,7 +9,7 @@ import org.springframework.core.annotation.Order
 import java.util.Locale
 import java.util.UUID
 
-@Profile("dev", "docker")
+@Profile("dev")
 @Configuration
 class ListingsDevSeeder {
 
@@ -123,7 +123,7 @@ class ListingsDevSeeder {
         val batch = listOf(
             ListingEntity().apply {
                 title = "Clear glass aquarium 60P set"
-                priceUsd = 420L
+                priceCents = 42000L
                 quantity = 3
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("11111111-1111-1111-1111-111111111111")
@@ -132,7 +132,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Float glass nano cube 30L"
-                priceUsd = 95L
+                priceCents = 9500L
                 quantity = 8
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("22222222-2222-2222-2222-222222222222")
@@ -141,7 +141,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Plug-and-play 90P aquarium set"
-                priceUsd = 690L
+                priceCents = 69000L
                 quantity = 2
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
@@ -150,7 +150,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Oak cabinet 90 cm"
-                priceUsd = 230L
+                priceCents = 23000L
                 quantity = 5
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
@@ -159,7 +159,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Aquarium leveling mat 60P"
-                priceUsd = 12L
+                priceCents = 1200L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc")
@@ -168,7 +168,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Wabikusa bowl starter set"
-                priceUsd = 58L
+                priceCents = 5800L
                 quantity = 10
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("dddddddd-dddd-dddd-dddd-dddddddddddd")
@@ -177,7 +177,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "LED Matrix 60 cm plant light"
-                priceUsd = 210L
+                priceCents = 21000L
                 quantity = 5
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("33333333-3333-3333-3333-333333333333")
@@ -186,7 +186,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Clip-on nano lamp"
-                priceUsd = 45L
+                priceCents = 4500L
                 quantity = 18
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee")
@@ -195,7 +195,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "LED dimmer controller"
-                priceUsd = 29L
+                priceCents = 2900L
                 quantity = 22
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff")
@@ -204,7 +204,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Stainless steel hanging kit"
-                priceUsd = 48L
+                priceCents = 4800L
                 quantity = 14
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("44444444-4444-4444-4444-444444444444")
@@ -213,7 +213,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Replacement LED module 30 cm"
-                priceUsd = 35L
+                priceCents = 3500L
                 quantity = 12
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("12121212-1212-1212-1212-121212121212")
@@ -222,7 +222,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Amazonia soil 9L"
-                priceUsd = 39L
+                priceCents = 3900L
                 quantity = 25
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("55555555-5555-5555-5555-555555555555")
@@ -231,7 +231,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "River sand 5 kg"
-                priceUsd = 18L
+                priceCents = 1800L
                 quantity = 30
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("14141414-1414-1414-1414-141414141414")
@@ -240,7 +240,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Seiryu stone bundle 10 kg"
-                priceUsd = 75L
+                priceCents = 7500L
                 quantity = 6
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("66666666-6666-6666-6666-666666666666")
@@ -249,7 +249,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Spider wood branch large"
-                priceUsd = 32L
+                priceCents = 3200L
                 quantity = 15
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("15151515-1515-1515-1515-151515151515")
@@ -258,7 +258,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Hardscape glue gel"
-                priceUsd = 9L
+                priceCents = 900L
                 quantity = 60
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("16161616-1616-1616-1616-161616161616")
@@ -267,7 +267,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "CO2 refillable cylinder 2 kg"
-                priceUsd = 95L
+                priceCents = 9500L
                 quantity = 12
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("17171717-1717-1717-1717-171717171717")
@@ -276,7 +276,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "CO2 dual-stage regulator"
-                priceUsd = 165L
+                priceCents = 16500L
                 quantity = 9
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("77777777-7777-7777-7777-777777777777")
@@ -285,7 +285,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "CO2 glass diffuser 20 mm"
-                priceUsd = 22L
+                priceCents = 2200L
                 quantity = 18
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("88888888-8888-8888-8888-888888888888")
@@ -294,7 +294,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Drop checker kit with indicator"
-                priceUsd = 19L
+                priceCents = 1900L
                 quantity = 30
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("99999999-9999-9999-9999-999999999999")
@@ -303,7 +303,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Complete CO2 set for 60L"
-                priceUsd = 185L
+                priceCents = 18500L
                 quantity = 7
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("18181818-1818-1818-1818-181818181818")
@@ -312,7 +312,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "CO2 resistant tubing black 3m"
-                priceUsd = 8L
+                priceCents = 800L
                 quantity = 50
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("19191919-1919-1919-1919-191919191919")
@@ -321,7 +321,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "External filter 1200 L/h"
-                priceUsd = 180L
+                priceCents = 18000L
                 quantity = 4
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("20202020-2020-2020-2020-202020202020")
@@ -330,7 +330,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Internal filter 400 L/h"
-                priceUsd = 35L
+                priceCents = 3500L
                 quantity = 20
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("21212121-2121-2121-2121-212121212121")
@@ -339,7 +339,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Hang-on filter slim 200"
-                priceUsd = 42L
+                priceCents = 4200L
                 quantity = 15
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("23232323-2323-2323-2323-232323232323")
@@ -348,7 +348,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Glass lily pipe set 16/22"
-                priceUsd = 65L
+                priceCents = 6500L
                 quantity = 11
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
@@ -357,7 +357,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Bio filter media ceramic rings"
-                priceUsd = 16L
+                priceCents = 1600L
                 quantity = 60
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("24242424-2424-2424-2424-242424242424")
@@ -366,7 +366,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Circulation pump 2000 L/h"
-                priceUsd = 55L
+                priceCents = 5500L
                 quantity = 9
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("25252525-2525-2525-2525-252525252525")
@@ -375,7 +375,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Surface skimmer glass"
-                priceUsd = 28L
+                priceCents = 2800L
                 quantity = 22
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("26262626-2626-2626-2626-262626262626")
@@ -384,7 +384,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Filter hose 16/22 mm 3m"
-                priceUsd = 14L
+                priceCents = 1400L
                 quantity = 35
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("27272727-2727-2727-2727-272727272727")
@@ -393,7 +393,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "In-vitro Micranthemum Monte Carlo"
-                priceUsd = 12L
+                priceCents = 1200L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("28282828-2828-2828-2828-282828282828")
@@ -402,7 +402,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "In-vitro Hemianthus cuba"
-                priceUsd = 14L
+                priceCents = 1400L
                 quantity = 30
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("29292929-2929-2929-2929-292929292929")
@@ -411,7 +411,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Java moss portion"
-                priceUsd = 10L
+                priceCents = 1000L
                 quantity = 50
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("30303030-3030-3030-3030-303030303030")
@@ -420,7 +420,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Helanthium tenellum pot"
-                priceUsd = 8L
+                priceCents = 800L
                 quantity = 45
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("31313131-3131-3131-3131-313131313131")
@@ -429,7 +429,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Cryptocoryne wendtii green"
-                priceUsd = 7L
+                priceCents = 700L
                 quantity = 33
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("32323232-3232-3232-3232-323232323232")
@@ -438,7 +438,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Vallisneria gigantea bunch"
-                priceUsd = 9L
+                priceCents = 900L
                 quantity = 28
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("33333333-3333-3333-3333-333333333333")
@@ -447,7 +447,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Salvinia natans portion"
-                priceUsd = 6L
+                priceCents = 600L
                 quantity = 70
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("34343434-3434-3434-3434-343434343434")
@@ -456,7 +456,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Anubias petite on lava rock"
-                priceUsd = 16L
+                priceCents = 1600L
                 quantity = 27
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("dddddddd-dddd-dddd-dddd-dddddddddddd")
@@ -465,7 +465,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Root fertilizer tabs (10x)"
-                priceUsd = 11L
+                priceCents = 1100L
                 quantity = 80
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("35353535-3535-3535-3535-353535353535")
@@ -474,7 +474,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Comprehensive liquid fertilizer 500ml"
-                priceUsd = 17L
+                priceCents = 1700L
                 quantity = 33
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee")
@@ -483,7 +483,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Master water test kit"
-                priceUsd = 45L
+                priceCents = 4500L
                 quantity = 13
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("36363636-3636-3636-3636-363636363636")
@@ -492,7 +492,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Water conditioner 250ml"
-                priceUsd = 12L
+                priceCents = 1200L
                 quantity = 55
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("37373737-3737-3737-3737-373737373737")
@@ -501,7 +501,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Algae control liquid carbon"
-                priceUsd = 14L
+                priceCents = 1400L
                 quantity = 21
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff")
@@ -510,7 +510,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Starter bacteria 100ml"
-                priceUsd = 10L
+                priceCents = 1000L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("38383838-3838-3838-3838-383838383838")
@@ -519,7 +519,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Dosing pump 3-channel"
-                priceUsd = 149L
+                priceCents = 14900L
                 quantity = 6
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("39393939-3939-3939-3939-393939393939")
@@ -528,7 +528,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Premium shrimp food 50g"
-                priceUsd = 9L
+                priceCents = 900L
                 quantity = 60
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("14141414-1414-1414-1414-141414141414")
@@ -537,7 +537,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Ich treatment 100ml"
-                priceUsd = 13L
+                priceCents = 1300L
                 quantity = 25
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("40404040-4040-4040-4040-404040404040")
@@ -546,7 +546,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Fish net 10 cm"
-                priceUsd = 6L
+                priceCents = 600L
                 quantity = 70
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("41414141-4141-4141-4141-414141414141")
@@ -555,7 +555,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Shrimp mineral salt 250g"
-                priceUsd = 11L
+                priceCents = 1100L
                 quantity = 50
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("13131313-1313-1313-1313-131313131313")
@@ -564,7 +564,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "GH+ remineralizer 500g"
-                priceUsd = 16L
+                priceCents = 1600L
                 quantity = 38
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("42424242-4242-4242-4242-424242424242")
@@ -573,7 +573,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Curved aquascaping tweezers 27cm"
-                priceUsd = 24L
+                priceCents = 2400L
                 quantity = 18
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("15151515-1515-1515-1515-151515151515")
@@ -582,7 +582,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Spring scissors 16cm"
-                priceUsd = 32L
+                priceCents = 3200L
                 quantity = 7
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("16161616-1616-1616-1616-161616161616")
@@ -591,7 +591,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Sand flattener spatula"
-                priceUsd = 14L
+                priceCents = 1400L
                 quantity = 26
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("43434343-4343-4343-4343-434343434343")
@@ -600,7 +600,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Algae scraper stainless"
-                priceUsd = 18L
+                priceCents = 1800L
                 quantity = 30
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("44444444-4444-4444-4444-444444444444")
@@ -609,7 +609,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Cleaning sponge on stick"
-                priceUsd = 9L
+                priceCents = 900L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("45454545-4545-4545-4545-454545454545")
@@ -618,7 +618,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Measuring pipette set"
-                priceUsd = 7L
+                priceCents = 700L
                 quantity = 80
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("46464646-4646-4646-4646-464646464646")
@@ -627,7 +627,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Magnetic tool holder"
-                priceUsd = 22L
+                priceCents = 2200L
                 quantity = 16
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("47474747-4747-4747-4747-474747474747")
@@ -636,7 +636,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Replacement tool tips set"
-                priceUsd = 8L
+                priceCents = 800L
                 quantity = 55
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("48484848-4848-4848-4848-484848484848")
@@ -645,7 +645,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Aquascaping handbook"
-                priceUsd = 28L
+                priceCents = 2800L
                 quantity = 5
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("17171717-1717-1717-1717-171717171717")
@@ -654,7 +654,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Aquascape poster A2"
-                priceUsd = 15L
+                priceCents = 1500L
                 quantity = 25
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("49494949-4949-4949-4949-494949494949")
@@ -663,7 +663,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Logo t-shirt size M"
-                priceUsd = 22L
+                priceCents = 2200L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("50505050-5050-5050-5050-505050505050")
@@ -672,7 +672,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Gift card 50 USD"
-                priceUsd = 50L
+                priceCents = 5000L
                 quantity = 200
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("18181818-1818-1818-1818-181818181818")
@@ -681,7 +681,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Community tetras pack (10x)"
-                priceUsd = 35L
+                priceCents = 3500L
                 quantity = 12
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("19191919-1919-1919-1919-191919191919")
@@ -690,7 +690,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Red cherry shrimp (10 pcs)"
-                priceUsd = 24L
+                priceCents = 2400L
                 quantity = 30
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("20202020-2020-2020-2020-202020202020")
@@ -699,7 +699,7 @@ class ListingsDevSeeder {
             },
             ListingEntity().apply {
                 title = "Nerite snail algae crew"
-                priceUsd = 12L
+                priceCents = 1200L
                 quantity = 40
                 status = ListingStatus.ACTIVE
                 sellerId = UUID.fromString("21212121-2121-2121-2121-212121212121")

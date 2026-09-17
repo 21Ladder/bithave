@@ -1,0 +1,48 @@
+<div class="page auth">
+  <div class="card auth__card">
+    <h1>Create account</h1>
+    <p class="text-muted">An account keeps your order history in one place.</p>
+
+    @if (error(); as message) {
+      <p class="notice notice--error" role="alert">{{ message }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label class="field__label" for="register-email">Email</label>
+        <input
+          id="register-email"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <p class="field__error">Please enter a valid email address.</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="register-password">Password</label>
+        <input
+          id="register-password"
+          type="password"
+          autocomplete="new-password"
+          formControlName="password"
+          [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <p class="field__error">At least 10 characters.</p>
+        }
+      </div>
+
+      <button class="btn btn--primary btn--block" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Creating account...' : 'Create account' }}
+      </button>
+    </form>
+
+    <p class="auth__switch text-muted">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </p>
+  </div>
+</div>

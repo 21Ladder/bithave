@@ -1,5 +1,6 @@
 package io.github.ladder.backend.orders.service
 
+import io.github.ladder.backend.config.AppProperties
 import io.github.ladder.backend.listings.persistence.CategoryEntity
 import io.github.ladder.backend.listings.persistence.ListingEntity
 import io.github.ladder.backend.listings.persistence.ListingRepository
@@ -24,6 +25,7 @@ class CartServiceImplTest {
     private lateinit var cartRepository: CartRepository
     private lateinit var listingRepository: ListingRepository
     private lateinit var cartMapper: CartMapper
+    private lateinit var appProperties: AppProperties
     private lateinit var cartService: CartServiceImpl
 
     @BeforeEach
@@ -31,7 +33,8 @@ class CartServiceImplTest {
         cartRepository = mock(CartRepository::class.java)
         listingRepository = mock(ListingRepository::class.java)
         cartMapper = mock(CartMapper::class.java)
-        cartService = CartServiceImpl(cartRepository, listingRepository, cartMapper)
+        appProperties = AppProperties()
+        cartService = CartServiceImpl(cartRepository, listingRepository, cartMapper, appProperties, mock(CartOwnership::class.java))
     }
 
     @Test
@@ -43,7 +46,7 @@ class CartServiceImplTest {
 
         val category = CategoryEntity("electronics", null)
         val listing = ListingEntity("Camera", 1_500, 5, category, listOf(), UUID.randomUUID())
-        `when`(listingRepository.findById(listingId)).thenReturn(Optional.of(listing))
+        `when`(listingRepository.findByIdForUpdate(listingId)).thenReturn(Optional.of(listing))
 
         val expectedResponse = CartResponse(cartId, listOf(), 2, 3_000)
         `when`(cartMapper.toResponse(cart)).thenReturn(expectedResponse)
@@ -56,7 +59,7 @@ class CartServiceImplTest {
         val savedItem: CartItemEntity = cart.items[0]
         assertSame(listing, savedItem.listing)
         assertEquals(2, savedItem.quantity)
-        assertEquals(listing.priceUsd, savedItem.unitPriceUsd)
+        assertEquals(listing.priceCents, savedItem.unitPriceCents)
         assertEquals(2, listing.reservedQuantity)
 
         verify(cartRepository).save(cart)

@@ -12,7 +12,7 @@ import java.util.UUID
 interface ListingService {
     fun list(q: ListingQuery): PageResponse<ListingSummary>
     fun getById(id: UUID): ListingResponse
-    fun create(req: ListingCreateRequest): UUID
+    fun create(req: ListingCreateRequest, sellerId: UUID): UUID
     fun update(id: UUID, req: ListingUpdateRequest): ListingResponse
     fun archive(id: UUID)
 }

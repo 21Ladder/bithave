@@ -11,4 +11,10 @@ class BtcPayProperties {
     lateinit var url: String
     lateinit var storeId: String
     lateinit var apiToken: String
+
+    // Shared secret for webhook signature checks, empty means webhooks are rejected
+    var webhookSecret: String = ""
+
+    // How long a buyer has to pay before the invoice expires
+    var invoiceExpirationMinutes: Int = 30
 }

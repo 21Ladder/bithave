@@ -25,8 +25,8 @@ class CartItemEntity(
     @Column(name = "quantity", nullable = false)
     var quantity: Int,
 
-    @Column(name = "unit_price_usd", nullable = false)
-    var unitPriceUsd: Long
+    @Column(name = "unit_price_cents", nullable = false)
+    var unitPriceCents: Long
 ) {
 
     @Id

@@ -1,10 +1,10 @@
 package io.github.ladder.backend.orders.dto
 
-// Response returned after creating a checkout invoice
+// Returned after checkout, the client redirects to checkoutLink and later polls orderNumber
 data class CheckoutResponse(
-    val invoiceId: String,
-    val status: String?,
+    val orderNumber: String,
+    val status: String,
     val checkoutLink: String?,
-    val amount: Double?,
-    val currency: String?
+    val totalCents: Long,
+    val currency: String
 )

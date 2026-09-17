@@ -5,7 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero
 
 data class ListingUpdateRequest(
     val title: String? = null,
-    @field:PositiveOrZero val priceUsd: Long? = null,
+    @field:PositiveOrZero val priceCents: Long? = null,
     @field:PositiveOrZero val quantity: Int? = null,
     val categoryPath: String? = null,
     val status: ListingStatus? = null,

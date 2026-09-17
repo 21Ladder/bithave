@@ -1,0 +1,64 @@
+<div class="page order">
+  @if (loading()) {
+    <div class="card order__card">
+      <div class="skeleton skeleton--line"></div>
+      <div class="skeleton skeleton--line skeleton--short"></div>
+    </div>
+  } @else if (error()) {
+    <div class="notice notice--error" role="alert">{{ error() }}</div>
+    <a class="btn" routerLink="/listings">Back to the shop</a>
+  } @else if (order()) {
+    @if (order()!; as o) {
+    <div class="card order__card">
+      <div class="order__head">
+        <div>
+          <p class="text-muted order__label">Order</p>
+          <h1>{{ o.orderNumber }}</h1>
+        </div>
+        <span
+          class="badge"
+          [class.badge--warning]="isPending()"
+          [class.badge--success]="isPaid()"
+          [class.badge--danger]="isClosed()"
+          >{{ statusLabel() }}</span
+        >
+      </div>
+
+      <div aria-live="polite">
+        @if (isPending()) {
+          <p class="notice notice--info">
+            We are waiting for your Bitcoin payment to confirm. This page updates by itself.
+            @if (o.checkoutLink) {
+              <a [href]="o.checkoutLink">Reopen the payment page</a>
+            }
+          </p>
+        } @else if (isPaid()) {
+          <p class="notice notice--success">
+            Payment received. A confirmation goes to {{ o.email }}.
+          </p>
+        } @else {
+          <p class="notice notice--error">
+            This order is no longer payable. The reserved items were released.
+          </p>
+        }
+      </div>
+
+      <ul class="order__items">
+        @for (item of o.items; track item.listingId) {
+          <li>
+            <span>{{ item.quantity }}&times; {{ item.title }}</span>
+            <span>{{ item.subtotalCents | eur }}</span>
+          </li>
+        }
+      </ul>
+
+      <div class="order__total">
+        <span>Total</span>
+        <strong>{{ o.totalCents | eur }}</strong>
+      </div>
+
+      <a class="btn" routerLink="/listings">Continue shopping</a>
+    </div>
+    }
+  }
+</div>

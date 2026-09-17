@@ -35,7 +35,7 @@ class ListingServiceImpl(
 
         val requestedSort = q.sort.trim()
         val sortField = when (requestedSort) {
-            "priceusd", "priceUsd", "PRICEUSD" -> "priceUsd"
+            "pricecents", "priceCents", "PRICECENTS" -> "priceCents"
             "createdAt", "createdat", "CREATEDAT" -> "createdAt"
             else -> "createdAt"
         }
@@ -56,8 +56,8 @@ class ListingServiceImpl(
         var spec: Specification<ListingEntity>? = null
         spec = and(spec, ListingSpecs.titleContains(q.q))
         spec = and(spec, ListingSpecs.statusEquals(parsedStatus))
-        spec = and(spec, ListingSpecs.priceMin(q.minPriceSats))
-        spec = and(spec, ListingSpecs.priceMax(q.maxPriceSats))
+        spec = and(spec, ListingSpecs.priceMin(q.minPriceCents))
+        spec = and(spec, ListingSpecs.priceMax(q.maxPriceCents))
         spec = and(spec, ListingSpecs.sellerIdEquals(q.sellerId))
         spec = and(spec, ListingSpecs.categoryPathStartingWithIgnoreCase(q.category))
 
@@ -82,13 +82,13 @@ class ListingServiceImpl(
     @Transactional(readOnly = true)
     override fun getById(id: UUID): ListingResponse {
         val listingFound = repo.findById(id).orElse(null)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id$id not found")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Listing $id not found")
         return mapper.toOneResponse(listingFound)
     }
 
     @Transactional
-    override fun create(req: ListingCreateRequest): UUID {
-        val entity = mapper.requestToEntity(req)
+    override fun create(req: ListingCreateRequest, sellerId: UUID): UUID {
+        val entity = mapper.requestToEntity(req, sellerId)
         repo.save(entity)
         return entity.id ?: throw IllegalStateException("Entity has no id after save")
     }

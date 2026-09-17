@@ -18,20 +18,20 @@ class CartMapper {
             .map { toItemResponse(it) }
 
         val totalQuantity = items.sumOf { it.quantity }
-        val totalPriceUsd = items.sumOf { it.subtotalUsd }
+        val totalPriceCents = items.sumOf { it.subtotalCents }
 
         return CartResponse(
             id = cart.id ?: throw IllegalStateException("Cart has no id"),
             items = items,
             totalQuantity = totalQuantity,
-            totalPriceUsd = totalPriceUsd
+            totalPriceCents = totalPriceCents
         )
     }
 
     // Helper function to convert CartItemEntity to CartItemResponse is used by toResponse
     private fun toItemResponse(item: CartItemEntity): CartItemResponse {
         val listing: ListingEntity = item.listing
-        val subtotal = item.unitPriceUsd * item.quantity
+        val subtotal = item.unitPriceCents * item.quantity
         val thumbnail = listing.images.firstOrNull()
 
         return CartItemResponse(
@@ -39,9 +39,9 @@ class CartMapper {
             listingId = listing.id ?: throw IllegalStateException("Listing has no id"),
             title = listing.title,
             thumbnailUrl = thumbnail,
-            unitPriceUsd = item.unitPriceUsd,
+            unitPriceCents = item.unitPriceCents,
             quantity = item.quantity,
-            subtotalUsd = subtotal
+            subtotalCents = subtotal
         )
     }
 }

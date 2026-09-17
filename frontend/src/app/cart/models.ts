@@ -3,24 +3,16 @@ export interface CartItem {
   listingId: string;
   title: string;
   thumbnailUrl: string | null;
-  unitPriceUsd: number;
+  unitPriceCents: number;
   quantity: number;
-  subtotalUsd: number;
+  subtotalCents: number;
 }
 
 export interface Cart {
   id: string;
   items: CartItem[];
   totalQuantity: number;
-  totalPriceUsd: number;
-}
-
-export interface CheckoutResponse {
-  invoiceId: string;
-  status?: string | null;
-  checkoutLink?: string | null;
-  amount?: number | null;
-  currency?: string | null;
+  totalPriceCents: number;
 }
 
 export interface AddCartItemRequest {
@@ -30,4 +22,26 @@ export interface AddCartItemRequest {
 
 export interface UpdateCartItemRequest {
   quantity: number;
+}
+
+export interface ShippingAddress {
+  name: string;
+  street: string;
+  postalCode: string;
+  city: string;
+  country: string;
+}
+
+export interface CheckoutRequest {
+  cartId: string;
+  email: string;
+  shippingAddress: ShippingAddress;
+}
+
+export interface CheckoutResponse {
+  orderNumber: string;
+  status: string;
+  checkoutLink: string | null;
+  totalCents: number;
+  currency: string;
 }

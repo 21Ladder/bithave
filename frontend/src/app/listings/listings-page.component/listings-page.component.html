@@ -1,72 +1,89 @@
-<div class="toolbar box">
-  <form class="filter" (ngSubmit)="searchOrSort()">
-    <input type="search" name="q" [(ngModel)]="q" placeholder="Search..." />
+<div class="page">
+  <h1>Aquascaping shop</h1>
 
-    <div class="controls">
-      <select name="sort" [(ngModel)]="sort">
-        <option value="createdAt">Latest</option>
-        <option value="priceUsd">Price (USD)</option>
+  <form class="toolbar" (ngSubmit)="searchOrSort()">
+    <div class="field toolbar__search">
+      <label class="visually-hidden" for="search">Search products</label>
+      <input id="search" type="search" placeholder="Search products" [(ngModel)]="q" name="q" />
+    </div>
+
+    <div class="field">
+      <label class="visually-hidden" for="sort">Sort by</label>
+      <select id="sort" [(ngModel)]="sort" name="sort" (change)="searchOrSort()">
+        <option value="createdAt">Newest</option>
+        <option value="priceCents">Price</option>
       </select>
-
-      <button type="button" (click)="toggleOrder()">
-        {{ order === 'DESC' ? 'Descending' : 'Ascending' }}
-      </button>
-
-      <button type="submit">Apply</button>
     </div>
+
+    <button class="btn" type="button" (click)="toggleOrder()">
+      {{ order === 'ASC' ? 'Ascending' : 'Descending' }}
+    </button>
+    <button class="btn btn--primary" type="submit">Apply</button>
   </form>
-</div>
 
-<!-- Breadcrumbs -->
-<nav class="breadcrumbs">
-  <button type="button" (click)="goToLevel(-1)">All</button>
+  <nav class="breadcrumbs" aria-label="Category">
+    <button class="link" type="button" (click)="setTop()">All categories</button>
+    @for (crumb of crumbs(); track $index) {
+      <span aria-hidden="true">/</span>
+      <button class="link" type="button" (click)="goToLevel($index)">{{ pretty(crumb) }}</button>
+    }
+  </nav>
 
-  @for (seg of crumbs(); track seg; let i = $index) {
-  <span> › </span>
-  <button type="button" (click)="goToLevel(i)">
-    {{ pretty(seg) }}
-  </button>
-  }
-</nav>
-
-<div class="two">
-  <!-- Left: categories -->
-  @if (cats$ | async; as cats) {
-  <aside class="left box">
-    <ul>
-      @for (c of cats; track c.path) {
-      <li>
-        <button class="chip" type="button" (click)="goInto(c)">
-          {{ c.name }}
-        </button>
-      </li>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Subcategories">
+      @if (categories().length) {
+        <ul class="chips">
+          @for (cat of categories(); track cat.path) {
+            <li>
+              <button class="chip" type="button" (click)="goInto(cat)">{{ cat.name }}</button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-muted small">No subcategories here.</p>
       }
-    </ul>
-  </aside>
-  }
+    </aside>
 
-  <!-- Right: listings -->
-  @if (listings$ | async; as res) {
-  <section class="right box">
-    <div class="listings-grid">
-      @for (item of res.items; track item.id) {
-      <app-listing-card [listing]="item" (selected)="navigateToListingDetail($event)" />
+    <section class="results" aria-live="polite">
+      @if (loading()) {
+        <div class="grid">
+          @for (s of skeletons; track $index) {
+            <div class="skeleton card-skeleton"></div>
+          }
+        </div>
+      } @else if (error()) {
+        <div class="notice notice--error" role="alert">{{ error() }}</div>
+        <button class="btn" type="button" (click)="reload()">Try again</button>
+      } @else if (result()) {
+        @if (result()!; as res) {
+        @if (res.items.length) {
+          <p class="text-muted small count">{{ res.totalElements }} products</p>
+          <div class="grid">
+            @for (listing of res.items; track listing.id) {
+              <app-listing-card [listing]="listing" />
+            }
+          </div>
+
+          @if (res.totalPages > 1) {
+            <div class="pager">
+              <button class="btn btn--sm" type="button" [disabled]="page === 0" (click)="previous()">
+                Previous
+              </button>
+              <span class="text-muted small">Page {{ res.page + 1 }} of {{ res.totalPages }}</span>
+              <button class="btn btn--sm" type="button" [disabled]="!res.hasNext" (click)="next()">
+                Next
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="empty">
+            <h2>No products found</h2>
+            <p class="text-muted">Try a different search term or category.</p>
+            <button class="btn" type="button" (click)="clearFilters()">Clear filters</button>
+          </div>
+        }
+        }
       }
-    </div>
-
-    <div class="pager">
-      <button (click)="page = 0; reload()" [disabled]="page === 0">First</button>
-
-      <button (click)="previous()" [disabled]="page === 0">Previous</button>
-
-      <span>Page {{ page + 1 }} of {{ res.totalPages }}</span>
-
-      <button (click)="next()" [disabled]="!res.hasNext">Next</button>
-
-      <button (click)="page = res.totalPages - 1; reload()" [disabled]="res.totalPages <= 1">
-        Last
-      </button>
-    </div>
-  </section>
-  }
+    </section>
+  </div>
 </div>

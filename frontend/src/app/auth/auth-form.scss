@@ -1,0 +1,30 @@
+.auth {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--space-8);
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+}
+
+h1 { margin-bottom: var(--space-2); }
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.notice { margin-top: var(--space-4); }
+
+.auth__switch {
+  margin-top: var(--space-5);
+  font-size: var(--font-size-sm);
+  text-align: center;
+
+  a { text-decoration: underline; }
+}

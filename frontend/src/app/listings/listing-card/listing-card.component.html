@@ -1,12 +1,21 @@
-<article class="card" (click)="onClick()">
-  <div class="thumb">
-    <img [src]="imageSrc()" [alt]="listing.title" loading="lazy" />
+<!-- An anchor, so products are reachable by keyboard and screen readers -->
+<a class="card product" [routerLink]="['/listings', listing.id]">
+  <div class="product__thumb">
+    <img [src]="imageSrc()" [alt]="listing.title" loading="lazy" (error)="onImageError($event)" />
+    @if (listing.availableQuantity === 0) {
+      <span class="badge badge--danger product__flag">Sold out</span>
+    }
   </div>
-  <div class="body">
-    <div class="title">{{ listing.title }}</div>
-    <div class="price">{{ listing.priceUsd | number : '1.0-0' }} USD</div>
-    <div class="meta">
-      <span class="qty">Available: {{ listing.availableQuantity }}</span>
-    </div>
+
+  <div class="product__body">
+    <h3 class="product__title">{{ listing.title }}</h3>
+    <p class="product__price">{{ listing.priceCents | eur }}</p>
+    <p class="product__meta text-muted">
+      @if (listing.availableQuantity > 0) {
+        {{ listing.availableQuantity }} in stock
+      } @else {
+        Currently unavailable
+      }
+    </p>
   </div>
-</article>
+</a>

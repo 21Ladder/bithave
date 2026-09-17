@@ -1,123 +1,92 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ListingsApi } from '../api/listings-api';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ListingDetail } from '../api/models';
-import { CartService } from '../../cart/cart.service';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
+import { CartService } from '../../cart/cart.service';
+import { ApiError } from '../../core/error.interceptor';
+import { EurPipe, SatsPipe } from '../../core/money.pipe';
+import { ListingsApi } from '../api/listings-api';
+import { ListingDetail } from '../api/models';
 
 @Component({
   selector: 'app-listing-detail',
-  imports: [CommonModule, FormsModule],
   standalone: true,
+  imports: [FormsModule, RouterLink, EurPipe, SatsPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './listing-detail.component.html',
-  styleUrl: './listing-detail.component.scss',
+  styleUrls: ['./listing-detail.component.scss'],
 })
 export class ListingDetailComponent implements OnInit {
-  private api = inject(ListingsApi);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private cartService = inject(CartService);
+  // Bound from the route via withComponentInputBinding
+  @Input() id = '';
 
-  loading = true;
-  errorMessage: string | null = null;
-  listing: ListingDetail | null = null;
-  id = '';
-  btcPrice: number = 0; // current USD per BTC coming from the Database ~ updated every 10 mins
-  satsPrice: number = 0; // calculated sats price
+  private readonly api = inject(ListingsApi);
+  private readonly cartService = inject(CartService);
+  readonly auth = inject(AuthService);
 
-  cartStatus: string | null = null;
-  cartError: string | null = null;
-  cartLoading = false;
+  readonly listing = signal<ListingDetail | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly status = signal<string | null>(null);
+  readonly adding = signal(false);
+  readonly btcPrice = signal<number | null>(null);
+  readonly activeImage = signal(0);
 
-  // will load listing detail and btc price on init
-  ngOnInit() {
-    this.id = this.route.snapshot.paramMap.get('id') || '';
-    if (!this.id) {
-      this.errorMessage = 'No ID.';
-      this.loading = false;
-      return;
-    }
+  quantity = 1;
+  readonly fallback = 'assets/no-image.svg';
 
-    // Load detail
+  ngOnInit(): void {
     this.api.getDetailListing(this.id).subscribe({
-      next: (data: ListingDetail) => {
-        this.listing = data;
-        this.loading = false;
-        this.calculateSats();
+      next: (listing) => {
+        this.listing.set(listing);
+        this.loading.set(false);
       },
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage =
-          err.status === 404
-            ? 'Entry not found.'
-            : err.status === 0
-            ? 'Network error – please check.'
-            : 'Error loading.';
-        this.loading = false;
+      error: (err: ApiError) => {
+        this.loading.set(false);
+        this.error.set(err.message);
       },
     });
 
-    // Load BTC price (USD per BTC)
     this.api.getBtcPrice().subscribe({
-      next: (res: number) => {
-        this.btcPrice = res;
-        console.log('BTC price loaded:', this.btcPrice);
-        this.calculateSats();
-      },
-      error: () => {
-        // show no btc price if error
-      },
+      next: (price) => this.btcPrice.set(price.priceEur),
+      error: () => this.btcPrice.set(null),
     });
   }
 
-  private calculateSats() {
-    if (this.listing && typeof this.listing.priceUsd === 'number' && this.btcPrice) {
-      // Calculating the current price in Satoshis based on 1 BTC = 100,000,000 Satoshis
-      this.satsPrice = Math.round((this.listing.priceUsd / this.btcPrice) * 100_000_000);
-    }
+  images(): string[] {
+    const images = this.listing()?.images ?? [];
+    return images.length ? images : [this.fallback];
   }
 
-  goBack() {
-    this.router.navigate(['/listings']);
+  selectImage(index: number): void {
+    this.activeImage.set(index);
   }
-  goToEdit() {
-    this.router.navigate(['/listings', this.id, 'edit']);
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.fallback;
   }
 
   addToCart(): void {
-    if (!this.listing) {
-      return;
-    }
+    const listing = this.listing();
+    if (!listing) return;
 
-    if (this.listing.availableQuantity < 1) {
-      this.cartStatus = null;
-      this.cartError = 'Article is currently unavailable.';
-      return;
-    }
+    this.adding.set(true);
+    this.status.set(null);
+    this.error.set(null);
 
-    this.cartLoading = true;
-    this.cartStatus = null;
-    this.cartError = null;
-
-    this.cartService.addItem(this.listing.id).subscribe({
+    this.cartService.addItem(listing.id, this.quantity).subscribe({
       next: () => {
-        this.cartLoading = false;
-        this.cartStatus = 'Article has been added to the cart.';
-        if (this.listing) {
-          this.listing = {
-            ...this.listing,
-            reservedQuantity: this.listing.reservedQuantity + 1,
-            availableQuantity: Math.max(0, this.listing.availableQuantity - 1),
-          };
-        }
+        this.adding.set(false);
+        this.status.set('Added to your cart.');
+        // Re-read instead of guessing, the server owns the reservation
+        this.api.getDetailListing(this.id).subscribe({
+          next: (fresh) => this.listing.set(fresh),
+          error: () => undefined,
+        });
       },
-      error: (err: HttpErrorResponse) => {
-        this.cartLoading = false;
-        this.cartError =
-          err.status === 409
-            ? 'Not enough stock available.'
-            : 'Article could not be added to the cart.';
+      error: (err: ApiError) => {
+        this.adding.set(false);
+        this.error.set(err.message);
       },
     });
   }

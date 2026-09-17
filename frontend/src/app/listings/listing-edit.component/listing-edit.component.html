@@ -1,60 +1,54 @@
-<button (click)="backToDetails()" [disabled]="saving">Back</button>
-<p>Edit Listing!</p>
+<div class="page form-page">
+  <h1>Edit listing</h1>
 
-<div>
-  @if (!loading) {
-    <form #f="ngForm" (ngSubmit)="onSave(f)">
-      @if (errorMessage) {
-        <div class="error">{{ errorMessage }}</div>
-      }
-
-      <!-- Title -->
-      <input
-        name="title"
-        [(ngModel)]="title"
-        required
-        maxlength="120"
-        placeholder="Titel" />
-
-      <!-- Price in Sats -->
-      <input
-        name="priceUsd"
-        [(ngModel)]="priceUsd"
-        type="number"
-        min="0"
-        step="1"
-        required
-        placeholder="Price (USD)" />
-
-      <input
-        name="quantity"
-        [(ngModel)]="quantity"
-        type="number"
-        min="0"
-        step="1"
-        required
-        placeholder="Quantity" />
-
-      <!-- Images -->
-      <textarea
-        name="imagesText"
-        [(ngModel)]="imagesText"
-        placeholder="Image URLs (each line or comma separated)">
-      </textarea>
-
-      <!-- Only clickable if something was changed and the form is valid -->
-      <button type="submit" [disabled]="saving || loading || !f.dirty || !f.valid">
-        @if (saving) { Editing… } @else { Edit Listing }
-      </button>
-    </form>
-  } @else {
-    <p>Lade…</p>
+  @if (error(); as message) {
+    <p class="notice notice--error" role="alert">{{ message }}</p>
   }
 
-  <div>
-    @if (complete) {
-      <button (click)="backToDetails()">Go to the edited listing</button>
-      <h1>Editing successful!</h1>
-    }
-  </div>
+  @if (loading()) {
+    <div class="skeleton form-skeleton"></div>
+  } @else {
+    <form class="card listing-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label class="field__label" for="edit-title">Title</label>
+        <input id="edit-title" formControlName="title" maxlength="120" />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <p class="field__error">A title is required.</p>
+        }
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label class="field__label" for="edit-price">Price in euro</label>
+          <input id="edit-price" type="number" step="0.01" min="0" formControlName="priceEur" />
+          @if (form.controls.priceEur.touched && form.controls.priceEur.invalid) {
+            <p class="field__error">Enter a price above zero.</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="edit-quantity">Stock</label>
+          <input id="edit-quantity" type="number" min="0" formControlName="quantity" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="edit-status">Status</label>
+        <select id="edit-status" formControlName="status">
+          <option value="ACTIVE">Active</option>
+          <option value="SOLD">Sold</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="edit-images">Image URLs</label>
+        <textarea id="edit-images" formControlName="imagesText"></textarea>
+      </div>
+
+      <button class="btn btn--primary" type="submit" [disabled]="saving()">
+        {{ saving() ? 'Saving...' : 'Save changes' }}
+      </button>
+    </form>
+  }
 </div>

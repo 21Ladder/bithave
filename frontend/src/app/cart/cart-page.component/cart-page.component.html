@@ -1,70 +1,106 @@
-<h1>Cart</h1>
+<div class="page">
+  <h1>Your cart</h1>
 
-@if (status) {
-<p class="status">{{ status }}</p>
-} @if (error) {
-<p class="error">{{ error }}</p>
-} @if (loading) {
-<p>Loading …</p>
-} @else { @if (cart$ | async; as cart) { @if (cart.items.length === 0) {
-<p>Your cart is empty.</p>
-<a routerLink="/listings" class="link">Continue shopping</a>
-} @else {
-<ul class="items">
-  <li *ngFor="let item of cart.items; trackBy: trackById" class="item">
-    @if (item.thumbnailUrl) {
-    <img [src]="item.thumbnailUrl!" [alt]="item.title" class="thumb" />
-    }
-    <div class="content">
-      <h3>{{ item.title }}</h3>
-      <p class="price">Unit price: {{ item.unitPriceUsd }} USD</p>
-      <div class="quantity">
-        <button type="button" (click)="decrement(item)" [disabled]="workingItemId === item.id">
-          -
-        </button>
-        <input
-          type="number"
-          min="1"
-          [value]="item.quantity"
-          (change)="onQuantityInput(item, $any($event.target).value)"
-          [disabled]="workingItemId === item.id"
-        />
-        <button type="button" (click)="increment(item)" [disabled]="workingItemId === item.id">
-          +
-        </button>
-      </div>
-      <p class="subtotal">Subtotal: {{ item.subtotalUsd }} USD</p>
+  @if (loading()) {
+    <div class="skeleton row-skeleton"></div>
+    <div class="skeleton row-skeleton"></div>
+  } @else if (isEmpty()) {
+    <div class="empty">
+      <h2>Your cart is empty</h2>
+      <p class="text-muted">Browse the shop and add something you like.</p>
+      <a class="btn btn--primary" routerLink="/listings">Browse the shop</a>
     </div>
-    <button
-      class="remove"
-      type="button"
-      (click)="remove(item)"
-      [disabled]="workingItemId === item.id"
-    >
-      Remove
-    </button>
-  </li>
-</ul>
+  } @else if (cart()) {
+    @if (cart()!; as c) {
+    <div aria-live="polite">
+      @if (status(); as message) {
+        <p class="notice notice--success">{{ message }}</p>
+      }
+      @if (error(); as message) {
+        <p class="notice notice--error" role="alert">{{ message }}</p>
+      }
+    </div>
 
-<section class="summary">
-  <div>
-    <span>Total items:</span>
-    <strong>{{ cart.totalQuantity }}</strong>
-  </div>
-  <div>
-    <span>Subtotal:</span>
-    <strong>{{ cart.totalPriceUsd }} USD</strong>
-    @if (btcPrice && totalSats(cart.totalPriceUsd) !== null) {
-    <span> ({{ totalSats(cart.totalPriceUsd) }} sats)</span>
+    <div class="cart">
+      <ul class="items">
+        @for (item of c.items; track item.id) {
+          <li class="item card" [class.is-busy]="workingItemId() === item.id">
+            <a class="item__thumb" [routerLink]="['/listings', item.listingId]">
+              <img
+                [src]="item.thumbnailUrl || fallback"
+                [alt]="item.title"
+                loading="lazy"
+                (error)="onImageError($event)"
+              />
+            </a>
+
+            <div class="item__body">
+              <a class="item__title" [routerLink]="['/listings', item.listingId]">{{ item.title }}</a>
+              <p class="text-muted small">{{ item.unitPriceCents | eur }} each</p>
+            </div>
+
+            <div class="item__qty">
+              <button
+                class="btn btn--sm"
+                type="button"
+                [attr.aria-label]="'Decrease quantity of ' + item.title"
+                [disabled]="item.quantity <= 1 || workingItemId() === item.id"
+                (click)="decrement(item)"
+              >
+                &minus;
+              </button>
+              <label class="visually-hidden" [attr.for]="'qty-' + item.id">
+                Quantity of {{ item.title }}
+              </label>
+              <input
+                [id]="'qty-' + item.id"
+                type="number"
+                min="1"
+                [value]="item.quantity"
+                (change)="onQuantityInput(item, $any($event.target).value)"
+              />
+              <button
+                class="btn btn--sm"
+                type="button"
+                [attr.aria-label]="'Increase quantity of ' + item.title"
+                [disabled]="workingItemId() === item.id"
+                (click)="increment(item)"
+              >
+                +
+              </button>
+            </div>
+
+            <div class="item__subtotal">{{ item.subtotalCents | eur }}</div>
+
+            <button
+              class="btn btn--ghost btn--sm item__remove"
+              type="button"
+              [attr.aria-label]="'Remove ' + item.title"
+              [disabled]="workingItemId() === item.id"
+              (click)="remove(item)"
+            >
+              Remove
+            </button>
+          </li>
+        }
+      </ul>
+
+      <aside class="summary card" aria-label="Cart summary">
+        <h2>Summary</h2>
+        <div class="summary__row">
+          <span class="text-muted">Items</span>
+          <span>{{ c.totalQuantity }}</span>
+        </div>
+        <div class="summary__row summary__row--total">
+          <span>Total</span>
+          <strong>{{ c.totalPriceCents | eur }}</strong>
+        </div>
+        @if (c.totalPriceCents | sats: btcPrice(); as sats) {
+          <p class="text-muted small">about {{ sats }} sats</p>
+        }
+        <a class="btn btn--primary btn--block" routerLink="/checkout">Proceed to checkout</a>
+      </aside>
+    </div>
     }
-  </div>
-  <button type="button" (click)="startCheckout()" [disabled]="checkoutLoading">
-    {{ checkoutLoading ? 'Creating invoice…' : 'Pay with BTCPay (Lightning)' }}
-  </button>
-  @if (checkoutError) {
-  <p class="error">{{ checkoutError }}</p>
   }
-</section>
-} } @else {
-<p>No cart data available.</p>
-} }
+</div>

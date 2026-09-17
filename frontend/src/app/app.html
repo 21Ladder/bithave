@@ -1,5 +1,14 @@
-<app-header></app-header>
+<a class="skip-link" href="#main">Skip to content</a>
 
-<main class="app-main">
-  <router-outlet></router-outlet>
+<app-header />
+
+<main id="main" class="app-main" tabindex="-1">
+  <router-outlet />
 </main>
+
+<footer class="app-footer">
+  <div class="app-footer__inner">
+    <span>&copy; {{ year }} Bithave</span>
+    <span class="text-muted">Aquascaping supplies, paid in Bitcoin</span>
+  </div>
+</footer>

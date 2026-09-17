@@ -10,7 +10,7 @@ data class ListingQuery(
     val q: String?,
     val status: String?,
     val category: String?,
-    val minPriceSats: Long?,
-    val maxPriceSats: Long?,
+    val minPriceCents: Long?,
+    val maxPriceCents: Long?,
     val sellerId: UUID?
 )

@@ -7,5 +7,5 @@ data class CartResponse(
     val id: UUID,
     val items: List<CartItemResponse>,
     val totalQuantity: Int,
-    val totalPriceUsd: Long
+    val totalPriceCents: Long
 )

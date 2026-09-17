@@ -2,6 +2,7 @@ package io.github.ladder.backend.listings.service
 
 import io.github.ladder.backend.listings.persistence.BtcPrice
 import io.github.ladder.backend.listings.persistence.BtcPriceRepository
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -13,6 +14,8 @@ class PriceUpdater(
     private val btcPriceRepository: BtcPriceRepository
 ) {
 
+    private val log = LoggerFactory.getLogger(javaClass)
+
     @Scheduled(fixedRate = 1_800_000)
     fun updatePrice() {
         try {
@@ -23,9 +26,9 @@ class PriceUpdater(
             entry.priceTimestamp = Instant.now()
             btcPriceRepository.save(entry)
 
-            println("Saved BTC price: ${response.bitcoin.eur}")
+            log.info("Saved BTC price: {}", response.bitcoin.eur)
         } catch (e: Exception) {
-            System.err.println("Error fetching BTC price: ${e.message}")
+            log.warn("Error fetching BTC price", e)
         }
     }
 }

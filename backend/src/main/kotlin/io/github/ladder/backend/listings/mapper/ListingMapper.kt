@@ -5,10 +5,11 @@ import io.github.ladder.backend.listings.dto.ListingResponse
 import io.github.ladder.backend.listings.dto.ListingSummary
 import io.github.ladder.backend.listings.dto.ListingUpdateRequest
 import io.github.ladder.backend.listings.persistence.ListingEntity
+import java.util.UUID
 
 interface ListingMapper {
     fun toSummary(entity: ListingEntity): ListingSummary
-    fun requestToEntity(req: ListingCreateRequest): ListingEntity
+    fun requestToEntity(req: ListingCreateRequest, sellerId: UUID): ListingEntity
     fun applyUpdate(req: ListingUpdateRequest, target: ListingEntity)
     fun toOneResponse(entity: ListingEntity): ListingResponse
 }

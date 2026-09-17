@@ -7,6 +7,7 @@ import io.github.ladder.backend.listings.dto.ListingUpdateRequest
 import io.github.ladder.backend.listings.persistence.CategoryRepository
 import io.github.ladder.backend.listings.persistence.ListingEntity
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class ListingMapperImpl(
@@ -18,7 +19,7 @@ class ListingMapperImpl(
         return ListingSummary(
             id = entity.id ?: throw IllegalStateException("Listing has no id"),
             title = entity.title,
-            priceUsd = entity.priceUsd,
+            priceCents = entity.priceCents,
             categoryPath = entity.categoryPath,
             status = entity.status,
             thumbnailUrl = thumbnail,
@@ -27,7 +28,7 @@ class ListingMapperImpl(
         )
     }
 
-    override fun requestToEntity(req: ListingCreateRequest): ListingEntity {
+    override fun requestToEntity(req: ListingCreateRequest, sellerId: UUID): ListingEntity {
         val images = req.images?.toList().orEmpty()
 
         val quantity = req.quantity
@@ -47,13 +48,12 @@ class ListingMapperImpl(
 
         return ListingEntity(
             title = req.title,
-            priceUsd = req.priceUsd
-                ?: throw IllegalArgumentException("priceUsd required"),
+            priceCents = req.priceCents
+                ?: throw IllegalArgumentException("priceCents required"),
             quantity = quantity,
             category = category,
             images = images,
-            sellerId = req.sellerId
-                ?: throw IllegalArgumentException("sellerId required")
+            sellerId = sellerId
         )
     }
 
@@ -66,9 +66,9 @@ class ListingMapperImpl(
             target.title = trimmed
         }
 
-        req.priceUsd?.let {
-            require(it >= 0) { "PriceSats cannot be negative" }
-            target.priceUsd = it
+        req.priceCents?.let {
+            require(it >= 0) { "priceCents cannot be negative" }
+            target.priceCents = it
         }
 
         req.status?.let { target.status = it }
@@ -91,7 +91,7 @@ class ListingMapperImpl(
         return ListingResponse(
             id = entity.id ?: throw IllegalStateException("Listing has no id"),
             title = entity.title,
-            priceUsd = entity.priceUsd,
+            priceCents = entity.priceCents,
             categoryPath = entity.categoryPath,
             status = entity.status,
             images = safeImages,

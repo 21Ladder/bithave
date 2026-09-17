@@ -1,137 +1,87 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ApiError } from '../../core/error.interceptor';
 import { ListingsApi } from '../api/listings-api';
-import { CategoryItem, CreateListingRequest } from '../api/models';
-import { Observable } from 'rxjs';
+import { CategoryItem } from '../api/models';
 
 @Component({
-  selector: 'app-listing-create.component',
-  imports: [CommonModule, FormsModule],
+  selector: 'app-listing-create',
   standalone: true,
+  imports: [ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './listing-create.component.html',
-  styleUrls: ['./listing-create.component.scss'],
+  styleUrls: ['../listing-form.scss'],
 })
-export class ListingCreateComponent {
-  title = '';
-  priceUsd: number | null = null;
-  quantity: number | null = 1;
-  category: string = '';
-  images: string[] = [];
-  imagesText = '';
-  sellerID = '11111111-1111-1111-1111-111111111111';
-  loading = false;
-  errorMsg: string | null = null;
+export class ListingCreateComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly api = inject(ListingsApi);
+  private readonly router = inject(Router);
 
-  private router = inject(Router);
-  private api = inject(ListingsApi);
+  readonly categories = signal<CategoryItem[]>([]);
+  readonly submitting = signal(false);
+  readonly error = signal<string | null>(null);
 
-  categoryPath = '';
-  cats$!: Observable<CategoryItem[]>;
+  // Price is entered in euros and sent as cents
+  readonly form = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.maxLength(120)]],
+    priceEur: [0, [Validators.required, Validators.min(0.01)]],
+    quantity: [1, [Validators.required, Validators.min(0)]],
+    categoryPath: ['', [Validators.required]],
+    imagesText: [''],
+  });
 
-  // load categories on init
   ngOnInit(): void {
-    this.loadCategories();
-  }
-
-  // handles the form submission to create a new listing
-  onSubmit() {
-    this.errorMsg = null;
-
-    const title = (this.title || '').trim();
-    if (!title) {
-      this.errorMsg = 'title is required.';
-      return;
-    }
-
-    const priceUsd = Number(this.priceUsd);
-    if (!Number.isFinite(priceUsd) || priceUsd <= 0) {
-      this.errorMsg = 'price is required.';
-      return;
-    }
-
-    const quantity = Number(this.quantity);
-    if (!Number.isFinite(quantity) || quantity < 0) {
-      this.errorMsg = 'quantity must be 0 or higher.';
-      return;
-    }
-
-    this.images = this.normalizeUrls(this.imagesText).slice(0, 6);
-
-    const newListing: CreateListingRequest = {
-      title,
-      priceUsd: priceUsd,
-      quantity: Math.floor(quantity),
-      images: this.images.length ? this.images : null,
-      sellerId: this.sellerID,
-      categoryPath: this.categoryPath,
-    };
-
-    this.loading = true;
-    this.api.createListing(newListing).subscribe({
-      next: (response) => {
-        this.loading = false;
-        this.router.navigate(['/listings', response.id]);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg = err.message || 'Failed to create listing.';
-      },
-      complete: () => {
-        this.loading = false;
-      },
+    this.api.getAllCategories('').subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: () => this.categories.set([]),
     });
   }
 
-  //normalizes my urls, split them, trims whitespaces, filters if null etc, filters to allow only http starts
-  normalizeUrls(input: string): string[] {
-    return input
-      .split(/[\n,]/g)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .filter((u) => u.startsWith('http'));
+  // Drills into the tree so deeper paths can be picked
+  onCategoryChange(path: string): void {
+    this.form.controls.categoryPath.setValue(path);
+    this.api.getAllCategories(path).subscribe({
+      next: (cats) => {
+        if (cats.length) this.categories.set(cats);
+      },
+      error: () => undefined,
+    });
   }
 
-  // navigate back to the listings page
-  back() {
-    this.router.navigate(['/listings']);
-  }
-
-  // loads categories based on the current category path
-  private loadCategories() {
-    this.cats$ = this.api.getAllCategories(this.categoryPath);
-  }
-
-  // breadcrumbs methods to navigate categories
-  crumbs(): string[] {
-    return this.categoryPath?.split('/') ?? [];
-  }
-
-  // navigate to a specific category level
-  goToLevel(index: number): void {
-    if (index < 0) {
-      this.categoryPath = '';
-    } else {
-      this.categoryPath = this.crumbs()
-        .slice(0, index + 1)
-        .join('/');
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-    this.loadCategories();
+
+    this.submitting.set(true);
+    this.error.set(null);
+    const value = this.form.getRawValue();
+
+    this.api
+      .createListing({
+        title: value.title.trim(),
+        priceCents: Math.round(value.priceEur * 100),
+        quantity: value.quantity,
+        categoryPath: value.categoryPath,
+        images: this.normalizeUrls(value.imagesText),
+      })
+      .subscribe({
+        next: (listing) => this.router.navigate(['/listings', listing.id]),
+        error: (err: ApiError) => {
+          this.submitting.set(false);
+          this.error.set(err.message);
+        },
+      });
   }
 
-  // navigate into a child category
-  goInto(child: CategoryItem): void {
-    this.categoryPath = child.path;
-    this.loadCategories();
-  }
-
-  // returns a pretty version of the segment for display
-  pretty(seg: string): string {
-    return seg
-      .split('-')
-      .filter(Boolean)
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join(' ');
+  // Accepts absolute URLs and the server side paths used by the seed data
+  private normalizeUrls(raw: string): string[] {
+    return raw
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter((s) => s.startsWith('http') || s.startsWith('/'))
+      .slice(0, 6);
   }
 }

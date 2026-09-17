@@ -1,0 +1,36 @@
+<div class="page">
+  <h1>Your orders</h1>
+
+  @if (loading()) {
+    <div class="skeleton row"></div>
+    <div class="skeleton row"></div>
+  } @else if (error()) {
+    <div class="notice notice--error" role="alert">{{ error() }}</div>
+  } @else if (orders().length === 0) {
+    <div class="empty">
+      <h2>No orders yet</h2>
+      <p class="text-muted">Orders you place while signed in show up here.</p>
+      <a class="btn btn--primary" routerLink="/listings">Browse the shop</a>
+    </div>
+  } @else {
+    <ul class="orders">
+      @for (order of orders(); track order.orderNumber) {
+        <li class="card order">
+          <div class="order__main">
+            <a class="order__number" [routerLink]="['/orders', order.orderNumber]">
+              {{ order.orderNumber }}
+            </a>
+            <p class="text-muted small">
+              {{ order.createdAt | date: 'mediumDate' }} &middot;
+              {{ order.items.length }} item(s)
+            </p>
+          </div>
+          <span class="badge" [class]="'badge ' + statusClass(order.status)">
+            {{ statusLabel(order.status) }}
+          </span>
+          <strong>{{ order.totalCents | eur }}</strong>
+        </li>
+      }
+    </ul>
+  }
+</div>

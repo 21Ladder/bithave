@@ -1,118 +1,89 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
-import { EditListingRequest, ListingDetail } from '../api/models';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ApiError } from '../../core/error.interceptor';
 import { ListingsApi } from '../api/listings-api';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-listing-edit',
-  imports: [FormsModule, CommonModule],
   standalone: true,
+  imports: [ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './listing-edit.component.html',
-  styleUrls: ['./listing-edit.component.scss'],
+  styleUrls: ['../listing-form.scss'],
 })
-export class ListingEditComponent {
-  id = '';
-  title = '';
-  priceUsd: number = 0;
-  quantity: number = 0;
-  status = '';
-  imagesText = '';
-  images!: string[];
-  loading = false;
-  saving = false;
-  complete = false;
-  errorMessage: string | null = null;
+export class ListingEditComponent implements OnInit {
+  // Bound from the route via withComponentInputBinding
+  @Input() id = '';
 
-  private api = inject(ListingsApi);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  listingToBeEdited!: ListingDetail;
-  editedListing!: EditListingRequest;
+  private readonly fb = inject(FormBuilder);
+  private readonly api = inject(ListingsApi);
+  private readonly router = inject(Router);
 
-  // loads listing detail on init for editing
-  ngOnInit() {
-    this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    if (!this.id) {
-      this.errorMessage = 'No ID.';
-      this.loading = false;
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+
+  readonly form = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.maxLength(120)]],
+    priceEur: [0, [Validators.required, Validators.min(0.01)]],
+    quantity: [0, [Validators.required, Validators.min(0)]],
+    status: ['ACTIVE', [Validators.required]],
+    imagesText: [''],
+  });
+
+  ngOnInit(): void {
+    this.api.getDetailListing(this.id).subscribe({
+      next: (listing) => {
+        this.form.patchValue({
+          title: listing.title,
+          priceEur: listing.priceCents / 100,
+          quantity: listing.quantity,
+          status: listing.status,
+          imagesText: (listing.images ?? []).join('\n'),
+        });
+        this.loading.set(false);
+      },
+      error: (err: ApiError) => {
+        this.loading.set(false);
+        this.error.set(err.message);
+      },
+    });
+  }
+
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
 
-    if (this.imagesText != null) {
-      this.images = this.normalizeUrls(this.imagesText);
-    }
+    this.saving.set(true);
+    this.error.set(null);
+    const value = this.form.getRawValue();
 
-    // Load detail for editing via API
-    this.api.getDetailListing(this.id).subscribe({
-      next: (data: ListingDetail) => {
-        this.listingToBeEdited = data;
-        this.title = data.title;
-        this.priceUsd = data.priceUsd;
-        this.quantity = data.quantity;
-        this.status = data.status;
-
-        if (data.images != null) {
-          this.imagesText = data.images.join('\n');
-        }
-
-        this.loading = false;
-      },
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage =
-          err.status === 404
-            ? 'Entry not found.'
-            : err.status === 0
-            ? 'Network error – please check.'
-            : 'Error loading.';
-        this.loading = false;
-      },
-    });
+    this.api
+      .editListing(this.id, {
+        title: value.title.trim(),
+        priceCents: Math.round(value.priceEur * 100),
+        quantity: value.quantity,
+        status: value.status,
+        images: this.normalizeUrls(value.imagesText),
+      })
+      .subscribe({
+        next: () => this.router.navigate(['/listings', this.id]),
+        error: (err: ApiError) => {
+          // Reset saving here, the old version left the form locked forever on error
+          this.saving.set(false);
+          this.error.set(err.message);
+        },
+      });
   }
 
-  // handles the form submission to save edited listing
-  onSave(f: NgForm) {
-    this.saving = true;
-    this.images = this.normalizeUrls(this.imagesText);
-
-    this.editedListing = {
-      title: this.title,
-      priceUsd: this.priceUsd,
-      quantity: this.quantity,
-      status: this.status,
-      images: this.images,
-    };
-
-    this.api.editListing(this.id, this.editedListing).subscribe({
-      next: (response: ListingDetail) => {
-        this.loading = false;
-      },
-      error: (err: HttpErrorResponse) => {
-        this.loading = false;
-        this.errorMessage = err.message || 'Failed to edit listing.';
-      },
-      complete: () => {
-        this.loading = false;
-        this.complete = true;
-        this.saving = false;
-      },
-    });
-  }
-
-  // normalizes image URLs from textarea input, later on will be uploaded images to server, not just URLs!
-  normalizeUrls(input: string): string[] {
-    return input
-      .split(/[\n,]/g)
+  private normalizeUrls(raw: string): string[] {
+    return raw
+      .split(/[\n,]/)
       .map((s) => s.trim())
-      .filter(Boolean)
-      .filter((u) => u.startsWith('http'))
+      .filter((s) => s.startsWith('http') || s.startsWith('/'))
       .slice(0, 6);
-  }
-
-  // navigates back to the listing details page
-  backToDetails() {
-    this.router.navigate(['/listings', this.listingToBeEdited.id]);
   }
 }

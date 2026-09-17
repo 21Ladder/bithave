@@ -1,11 +1,41 @@
-<header class="app-header">
-  <a class="brand" routerLink="/listings">BITHAVE</a>
+<header class="header">
+  <div class="header__inner">
+    <a class="brand" routerLink="/listings">
+      <span class="brand__mark" aria-hidden="true"></span>
+      BITHAVE
+    </a>
 
-  <button class="cart-button" type="button" [routerLink]="['/cart']">
-    Cart @if (cart$ | async; as cart) {
-    <span class="count">({{ cart?.totalQuantity ?? 0 }})</span>
-    } @else {
-    <span class="count">(0)</span>
-    }
-  </button>
+    <nav class="nav" aria-label="Main">
+      <a routerLink="/listings" routerLinkActive="is-active">Shop</a>
+      @if (auth.isSignedIn()) {
+        <a routerLink="/account/orders" routerLinkActive="is-active">Orders</a>
+      }
+      @if (auth.isAdmin()) {
+        <a routerLink="/listings/new" routerLinkActive="is-active">New listing</a>
+      }
+    </nav>
+
+    <div class="actions">
+      <button
+        class="btn btn--ghost btn--sm"
+        type="button"
+        (click)="toggleTheme()"
+        [attr.aria-label]="'Switch to ' + (theme.resolved() === 'dark' ? 'light' : 'dark') + ' mode'"
+      >
+        {{ theme.resolved() === 'dark' ? 'Light' : 'Dark' }}
+      </button>
+
+      @if (auth.isSignedIn()) {
+        <span class="account text-muted">{{ auth.user()?.email }}</span>
+        <button class="btn btn--ghost btn--sm" type="button" (click)="signOut()">Sign out</button>
+      } @else {
+        <a class="btn btn--ghost btn--sm" routerLink="/login">Sign in</a>
+      }
+
+      <a class="cart" routerLink="/cart" [attr.aria-label]="'Cart, ' + itemCount() + ' items'">
+        Cart
+        <span class="cart__count" aria-hidden="true">{{ itemCount() }}</span>
+      </a>
+    </div>
+  </div>
 </header>

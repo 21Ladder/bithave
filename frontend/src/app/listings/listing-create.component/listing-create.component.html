@@ -1,76 +1,59 @@
-<div>
-  <!-- Formular -->
-  <form (ngSubmit)="onSubmit()" #f="ngForm">
-    @if (errorMsg) {
-      <div class="error">{{ errorMsg }}</div>
-    }
+<div class="page form-page">
+  <h1>New listing</h1>
 
-    <!-- Title -->
-    <input
-      name="title"
-      [(ngModel)]="title"
-      required
-      maxlength="120"
-      placeholder="Title" />
+  @if (error(); as message) {
+    <p class="notice notice--error" role="alert">{{ message }}</p>
+  }
 
-    <!-- Price in USD -->
-    <input
-      name="priceUsd"
-      [(ngModel)]="priceUsd"
-      type="number"
-      min="0"
-      step="1"
-      required
-      placeholder="Price in USD" />
-
-    <input
-      name="quantity"
-      [(ngModel)]="quantity"
-      type="number"
-      min="0"
-      step="1"
-      required
-      placeholder="Quantity in stock" />
-
-    <!-- Images -->
-    <textarea
-      name="imagesText"
-      [(ngModel)]="imagesText"
-      placeholder="Image URLs, separated by line or comma">
-    </textarea>
-
-    <p>Choose the category:</p>
-    <!-- Kategorie-Breadcrumbs -->
-    <nav class="breadcrumbs">
-      <a href (click)="$event.preventDefault(); goToLevel(-1)">All</a>
-      @for (seg of crumbs(); track $index) {
-        <span> › </span>
-        <a href (click)="$event.preventDefault(); goToLevel($index)">
-          {{ pretty(seg) }}
-        </a>
+  <form class="card listing-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label class="field__label" for="title">Title</label>
+      <input id="title" formControlName="title" maxlength="120" />
+      @if (form.controls.title.touched && form.controls.title.invalid) {
+        <p class="field__error">A title is required.</p>
       }
-    </nav>
+    </div>
 
-    <!-- Kategorie-Auswahl -->
-    @if (cats$ | async; as cats) {
-      <aside class="box categories">
-        <ul>
-          @for (c of cats; track c.path) {
-            <li>
-              <button type="button" class="chip" (click)="goInto(c)">
-                {{ c.name }}
-              </button>
-            </li>
-          }
-        </ul>
-      </aside>
-    }
+    <div class="row">
+      <div class="field">
+        <label class="field__label" for="priceEur">Price in euro</label>
+        <input id="priceEur" type="number" step="0.01" min="0" formControlName="priceEur" />
+        @if (form.controls.priceEur.touched && form.controls.priceEur.invalid) {
+          <p class="field__error">Enter a price above zero.</p>
+        }
+      </div>
 
-    <!-- Submit -->
-    <button type="submit" [disabled]="loading || f.invalid">
-      @if (loading) { Creating… } @else { Create Listing }
+      <div class="field">
+        <label class="field__label" for="quantity">Stock</label>
+        <input id="quantity" type="number" min="0" formControlName="quantity" />
+        @if (form.controls.quantity.touched && form.controls.quantity.invalid) {
+          <p class="field__error">Enter a stock quantity.</p>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="category">Category</label>
+      <select id="category" (change)="onCategoryChange($any($event.target).value)">
+        <option value="">Choose a category</option>
+        @for (cat of categories(); track cat.path) {
+          <option [value]="cat.path">{{ cat.name }}</option>
+        }
+      </select>
+      <p class="text-muted hint">Selected: {{ form.controls.categoryPath.value || 'none' }}</p>
+      @if (form.controls.categoryPath.touched && form.controls.categoryPath.invalid) {
+        <p class="field__error">Pick a category.</p>
+      }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="images">Image URLs</label>
+      <textarea id="images" formControlName="imagesText" placeholder="One URL per line"></textarea>
+      <p class="text-muted hint">Up to six images.</p>
+    </div>
+
+    <button class="btn btn--primary" type="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Creating...' : 'Create listing' }}
     </button>
   </form>
-
-  <button type="button" (click)="back()">Back</button>
 </div>

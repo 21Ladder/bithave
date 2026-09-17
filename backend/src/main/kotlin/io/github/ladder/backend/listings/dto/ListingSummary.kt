@@ -7,7 +7,7 @@ import java.util.UUID
 data class ListingSummary(
     val id: UUID,
     val title: String,
-    val priceUsd: Long,
+    val priceCents: Long,
     val categoryPath: String,
     val status: ListingStatus,
     val thumbnailUrl: String?,

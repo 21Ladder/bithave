@@ -1,72 +1,69 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-
+import { ApiError } from '../../core/error.interceptor';
 import { ListingsApi } from '../api/listings-api';
 import { CategoryItem, ListingSummary, PageResponse } from '../api/models';
-import { CartService } from '../../cart/cart.service';
 import { ListingCardComponent } from '../listing-card/listing-card.component';
+
+type SortField = 'createdAt' | 'priceCents';
 
 @Component({
   selector: 'app-listings-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ListingCardComponent],
+  imports: [FormsModule, ListingCardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './listings-page.component.html',
   styleUrls: ['./listings-page.component.scss'],
 })
 export class ListingsPageComponent implements OnInit {
-  // UI States, what my component remembers about itself
+  // UI state, what this page remembers about itself
   q = '';
-  sort: 'createdAt' | 'priceUsd' = 'createdAt';
-  order: 'ASC' | 'DESC' = 'ASC';
+  sort: SortField = 'createdAt';
+  order: 'ASC' | 'DESC' = 'DESC';
   page = 0;
-  size = 20;
+  size = 12;
 
-  // This is the current category path in the URL, depending on how deep the user gets into the category tree it changes, therefore also my api call to the backend changes
-  catPath = ''; // '' means top-level, ALL categories
+  // Current category path in the URL, '' means all categories
+  catPath = '';
 
-  // Dependency Injection like on beans in Spring
   private readonly api = inject(ListingsApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly cartService = inject(CartService);
 
-  readonly cart$ = this.cartService.cart$;
+  readonly result = signal<PageResponse<ListingSummary> | null>(null);
+  readonly categories = signal<CategoryItem[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
 
-  //Observables which I can use in the HTML with async
-  listings$!: Observable<PageResponse<ListingSummary>>; //all listings
-  cats$!: Observable<CategoryItem[]>; // all categories
+  // Placeholder cards while the request is in flight
+  readonly skeletons = Array.from({ length: 8 });
 
-  // ---------- Lifecycle onInit ----------
   ngOnInit(): void {
     const params = this.route.snapshot.queryParamMap;
 
     this.q = params.get('q') ?? '';
     this.catPath = params.get('cat') ?? '';
-    this.sort = (params.get('sort') as 'createdAt' | 'priceUsd') ?? 'createdAt';
-    this.order = (params.get('order') as 'ASC' | 'DESC') ?? 'ASC';
+    this.sort = (params.get('sort') as SortField) ?? 'createdAt';
+    this.order = (params.get('order') as 'ASC' | 'DESC') ?? 'DESC';
     this.page = Number(params.get('page') ?? 0);
-    this.size = Number(params.get('size') ?? 20);
+    this.size = Number(params.get('size') ?? 12);
 
     this.reload();
   }
 
-  // URL syncing, if null then its not mentioned in the URL
+  // URL syncing, a null value keeps the key out of the URL
   private syncUrl(): void {
-    const queryParams: any = {
-      q: this.q.trim() || null,
-      cat: this.catPath || null,
-      sort: this.sort,
-      order: this.order,
-      page: this.page,
-      size: this.size,
-    };
-
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams,
+      queryParams: {
+        q: this.q.trim() || null,
+        cat: this.catPath || null,
+        sort: this.sort,
+        order: this.order,
+        page: this.page,
+        size: this.size,
+      },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
@@ -76,41 +73,46 @@ export class ListingsPageComponent implements OnInit {
     if (resetPage) this.page = 0;
 
     this.syncUrl();
+    this.loading.set(true);
+    this.error.set(null);
 
-    // gets me all the listings depending on the current states
-    this.listings$ = this.api.list(
-      this.q.trim(),
-      this.catPath,
-      this.sort,
-      this.order,
-      this.page,
-      this.size
-    );
+    this.api
+      .list({
+        q: this.q.trim(),
+        category: this.catPath,
+        sort: this.sort,
+        order: this.order,
+        page: this.page,
+        size: this.size,
+      })
+      .subscribe({
+        next: (result) => {
+          this.result.set(result);
+          this.loading.set(false);
+        },
+        error: (err: ApiError) => {
+          this.loading.set(false);
+          this.error.set(err.message);
+        },
+      });
 
-    // gets me all the categories for navigation and display on the UI
-    this.cats$ = this.api.getAllCategories(this.catPath);
+    this.api.getAllCategories(this.catPath).subscribe({
+      next: (cats) => this.categories.set(cats),
+      error: () => this.categories.set([]),
+    });
   }
 
   // ---------- Breadcrumbs ----------
-  //returns an array with all the segments of the category path
   crumbs(): string[] {
-    return this.catPath?.split('/') ?? [];
+    return this.catPath ? this.catPath.split('/') : [];
   }
 
-  // navigates to a specific category level based on index
   goToLevel(index: number): void {
-    if (index < 0) {
-      this.catPath = ''; // All categories
-    } else {
-      // joins all the segments to a string
-      this.catPath = this.crumbs()
-        .slice(0, index + 1)
-        .join('/');
-    }
+    this.catPath = index < 0 ? '' : this.crumbs().slice(0, index + 1).join('/');
     this.reload(true);
   }
 
-  // returns me a pretty version of the segment for the UI
+  // Turns a path segment into a readable label
   pretty(seg: string): string {
     return seg
       .split('-')
@@ -119,19 +121,16 @@ export class ListingsPageComponent implements OnInit {
       .join(' ');
   }
 
-  // go to the ALL categories view
   setTop(): void {
     this.catPath = '';
     this.reload(true);
   }
 
-  // when a child of a category is clicked, you go into it and get all its children listed + all listings in that category
   goInto(child: CategoryItem): void {
     this.catPath = child.path;
     this.reload(true);
   }
 
-  // on search and order, I think it makes sense to reset the page to 0
   searchOrSort(): void {
     this.reload(true);
   }
@@ -153,15 +152,9 @@ export class ListingsPageComponent implements OnInit {
     window.scrollTo({ top: 0 });
   }
 
-  navigateToListingDetail(id: string): void {
-    this.router.navigate(['/listings', id]);
-  }
-
-  createListing(): void {
-    this.router.navigate(['/listings/new']);
-  }
-
-  goToCart(): void {
-    this.router.navigate(['/cart']);
+  clearFilters(): void {
+    this.q = '';
+    this.catPath = '';
+    this.reload(true);
   }
 }

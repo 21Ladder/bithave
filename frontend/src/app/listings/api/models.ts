@@ -1,9 +1,11 @@
+export type ListingStatus = 'ACTIVE' | 'SOLD' | 'ARCHIVED';
+
 export interface ListingSummary {
   id: string;
   title: string;
-  priceUsd: number;
+  priceCents: number;
   categoryPath: string;
-  status: 'ACTIVE' | 'SOLD' | 'ARCHIVED';
+  status: ListingStatus;
   thumbnailUrl: string | null;
   createdAt: string;
   availableQuantity: number;
@@ -18,21 +20,12 @@ export interface PageResponse<T> {
   hasNext: boolean;
 }
 
-export interface ListParams {
-  q?: string;
-  status?: string;
-  sort?: string;
-  order?: string;
-  page?: number;
-  size?: number;
-}
-
 export interface ListingDetail {
   id: string;
   title: string;
-  priceUsd: number;
+  priceCents: number;
   categoryPath: string;
-  status: 'ACTIVE' | 'SOLD' | 'ARCHIVED';
+  status: ListingStatus;
   images: string[] | null;
   sellerId: string;
   createdAt: string;
@@ -42,18 +35,18 @@ export interface ListingDetail {
   availableQuantity: number;
 }
 
+// sellerId comes from the signed in operator, the client never sends it
 export interface CreateListingRequest {
   title: string;
-  priceUsd: number;
+  priceCents: number;
   quantity: number;
   images: string[] | null;
-  sellerId: string;
   categoryPath: string;
 }
 
 export interface EditListingRequest {
   title?: string;
-  priceUsd?: number;
+  priceCents?: number;
   quantity?: number;
   status?: string;
   images?: string[];
@@ -65,9 +58,7 @@ export interface CategoryItem {
   hasChildren: boolean;
 }
 
-export interface BtcPriceResponse {
-  bitcoin: {
-    eur: number;
-    last_updated_at: number;
-  };
+export interface BtcPrice {
+  priceEur: number;
+  updatedAt: string | null;
 }

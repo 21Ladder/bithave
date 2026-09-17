@@ -1,5 +1,6 @@
 package io.github.ladder.backend.orders.service
 
+import io.github.ladder.backend.config.AppProperties
 import io.github.ladder.backend.listings.domain.ListingStatus
 import io.github.ladder.backend.listings.persistence.ListingRepository
 import io.github.ladder.backend.orders.dto.CartItemAddRequest
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
+import java.time.Duration
 import java.util.Objects
 import java.util.UUID
 
@@ -21,13 +23,20 @@ import java.util.UUID
 class CartServiceImpl(
     private val cartRepository: CartRepository,
     private val listingRepository: ListingRepository,
-    private val cartMapper: CartMapper
+    private val cartMapper: CartMapper,
+    private val appProperties: AppProperties,
+    private val cartOwnership: CartOwnership
 ) : CartService {
+
+    private val cartTtl: Duration
+        get() = Duration.ofMinutes(appProperties.cartTtlMinutes)
 
     // Create a new shopping cart
     @Transactional
     override fun createCart(): CartResponse {
         val cart = CartEntity()
+        cartOwnership.claim(cart)
+        cart.extendExpiry(cartTtl)
         cartRepository.save(cart)
         return cartMapper.toResponse(cart)
     }
@@ -42,14 +51,14 @@ class CartServiceImpl(
     // Add an item to the shopping cart
     @Transactional
     override fun addItem(cartId: UUID, request: CartItemAddRequest): CartResponse {
-        val cart = loadCart(cartId)
+        val cart = loadEditableCart(cartId)
 
         val quantity = request.quantity ?: 1
         if (quantity < 1) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be at least 1")
         }
 
-        val listing = listingRepository.findById(request.listingId)
+        val listing = listingRepository.findByIdForUpdate(request.listingId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found") }
 
         if (listing.status != ListingStatus.ACTIVE) {
@@ -67,14 +76,15 @@ class CartServiceImpl(
 
         if (existing != null) {
             existing.quantity = existing.quantity + quantity
-            existing.unitPriceUsd = listing.priceUsd
+            existing.unitPriceCents = listing.priceCents
         } else {
-            val newItem = CartItemEntity(listing, quantity, listing.priceUsd)
+            val newItem = CartItemEntity(listing, quantity, listing.priceCents)
             cart.addItem(newItem)
         }
 
         listing.increaseReserved(increment)
 
+        cart.extendExpiry(cartTtl)
         cartRepository.save(cart)
         return cartMapper.toResponse(cart)
     }
@@ -82,7 +92,7 @@ class CartServiceImpl(
     // Update the quantity of a specific item in the shopping cart
     @Transactional
     override fun updateItem(cartId: UUID, itemId: UUID, request: CartItemUpdateRequest): CartResponse {
-        val cart = loadCart(cartId)
+        val cart = loadEditableCart(cartId)
 
         if (request.quantity < 1) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be at least 1")
@@ -91,7 +101,8 @@ class CartServiceImpl(
         val item = cart.items.firstOrNull { ci -> Objects.equals(ci.id, itemId) }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found in cart")
 
-        val listing = item.listing
+        val listing = listingRepository.findByIdForUpdate(item.listing.id!!)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found") }
         val oldQuantity = item.quantity
         val newQuantity = request.quantity
         val delta = newQuantity - oldQuantity
@@ -109,6 +120,7 @@ class CartServiceImpl(
 
         item.quantity = newQuantity
 
+        cart.extendExpiry(cartTtl)
         cartRepository.save(cart)
         return cartMapper.toResponse(cart)
     }
@@ -116,22 +128,35 @@ class CartServiceImpl(
     // Remove an item from the shopping cart
     @Transactional
     override fun removeItem(cartId: UUID, itemId: UUID): CartResponse {
-        val cart = loadCart(cartId)
+        val cart = loadEditableCart(cartId)
 
         val item = cart.items.firstOrNull { ci -> Objects.equals(ci.id, itemId) }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found in cart")
 
-        val listing = item.listing
+        val listing = listingRepository.findByIdForUpdate(item.listing.id!!)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Listing not found") }
         listing.decreaseReserved(item.quantity)
 
         cart.removeItem(item)
+        cart.extendExpiry(cartTtl)
         cartRepository.save(cart)
         return cartMapper.toResponse(cart)
     }
 
     // Helper function to load cart by ID or throw 404
     private fun loadCart(cartId: UUID): CartEntity {
-        return cartRepository.findWithItemsById(cartId)
+        val cart = cartRepository.findWithItemsById(cartId)
             .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found") }
+        cartOwnership.assertOwned(cart)
+        return cart
+    }
+
+    // A converted or expired cart belongs to an order and must not change anymore
+    private fun loadEditableCart(cartId: UUID): CartEntity {
+        val cart = loadCart(cartId)
+        if (!cart.isEditable) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Cart is no longer editable")
+        }
+        return cart
     }
 }
